@@ -3,6 +3,7 @@ import { render } from 'astro:content';
 import Base from '../../layouts/Base.astro';
 import HubCard, { type Tone } from '../../components/HubCard.astro';
 import SourceList from '../../components/SourceList.astro';
+import GlossaryHighlightButton from '../../components/GlossaryHighlightButton.astro';
 import {
   getArticles,
   categoryOf,
@@ -90,9 +91,12 @@ const tones: Record<CategoryId, Tone> = {
               ))
             }
           </ol>
-          <a href="/glossary/" class="btn-outline aside-glossary">
-            Glossary <span class="arrow" aria-hidden="true">→</span>
-          </a>
+          <div class="aside-actions">
+            <a href="/glossary/" class="btn-outline">
+              Full glossary <span class="arrow" aria-hidden="true">→</span>
+            </a>
+            <GlossaryHighlightButton />
+          </div>
         </div>
       </aside>
 
@@ -171,5 +175,4 @@ const tones: Record<CategoryId, Tone> = {
   import '../../../assets/scripts/carousel.ts';
   import '../../../assets/scripts/barchart.ts';
   import '../../../assets/scripts/linechart.ts';
-  import '../../../assets/scripts/scalingchart.ts';
-</script>
+  import '../../../assets/scripts/scalingchart.ts';</script>

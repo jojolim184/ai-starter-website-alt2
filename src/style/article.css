@@ -81,7 +81,7 @@
 
 .article-layout {
   display: grid;
-  grid-template-columns: 280px minmax(0, var(--measure));
+  grid-template-columns: 320px minmax(0, var(--measure));
   justify-content: center;
   gap: var(--space-xxl) 120px;
   padding-block: var(--space-band);
@@ -133,6 +133,66 @@
 .aside-list .serif {
   font-size: var(--type-body-serif);
   line-height: 1.3;
+}
+
+.aside-actions {
+  display: flex;
+  gap: var(--space-xs);
+  white-space: nowrap;
+}
+
+.aside-actions .btn-outline {
+  padding-inline: var(--space-md);
+}
+
+/* ---------- Glossary terms in the prose ----------
+   Written in by glossary-highlight.ts on first highlight. A Clay wash rather
+   than Signal Red, so a dozen marked words stay calm. */
+
+.term {
+  position: relative;
+  transition: background-color var(--state);
+}
+
+html[data-glossary-highlight] .term {
+  background-color: rgba(131, 74, 51, 0.2);
+  padding: 1px var(--space-xxs);
+  margin-inline: -2px;
+  cursor: help;
+}
+
+html[data-glossary-highlight] .term:hover {
+  background-color: rgba(131, 74, 51, 0.34);
+}
+
+.term-def {
+  display: none;
+  position: absolute;
+  bottom: calc(100% + var(--space-xs));
+  left: 0;
+  z-index: 10;
+  width: 280px;
+  max-width: 80vw;
+  font-family: var(--face-mono);
+  font-size: var(--type-nav-label);
+  line-height: 1.5;
+  color: var(--obsidian);
+  background-color: var(--parchment);
+  border: var(--border-hairline) solid var(--obsidian);
+  padding: var(--space-sm);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html[data-glossary-highlight] .term:hover .term-def {
+  display: block;
+  animation: term-def-in var(--state) both;
+}
+
+@keyframes term-def-in {
+  from {
+    opacity: 0;
+  }
 }
 
 .article-prose > p:first-of-type::first-line {
@@ -210,7 +270,7 @@
 
 @media (max-width: 1179px) {
   .article-layout {
-    grid-template-columns: 240px minmax(0, 1fr);
+    grid-template-columns: 320px minmax(0, 1fr);
     gap: var(--space-xl) var(--space-xxl);
   }
 }
@@ -271,7 +331,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .aside-list a,
-  .pager-link {
+  .pager-link,
+  .term {
     transition: none;
+  }
+
+  html[data-glossary-highlight] .term:hover .term-def {
+    animation: none;
   }
 }

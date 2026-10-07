@@ -1,0 +1,50 @@
+---
+// Toggles glossary highlighting in the article. Signal Red while off, inviting
+// the click; Obsidian while on, so the state reads at a glance.
+---
+
+<button
+  type="button"
+  class="button-highlight"
+  aria-pressed="false"
+  data-glossary-highlight-button
+>
+  <span data-highlight-label>Highlight terms</span>
+</button>
+
+<script>
+  import '../../assets/scripts/glossary-highlight.ts';
+</script>
+
+<style>
+  .button-highlight {
+    min-height: 48px;
+    padding: var(--space-sm) var(--space-md);
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--parchment);
+    background-color: var(--signal);
+    border: 0;
+    border-radius: var(--rounded-none);
+    cursor: pointer;
+    transition: background-color var(--state);
+  }
+
+  .button-highlight[aria-pressed='true'] {
+    background-color: var(--obsidian);
+  }
+
+  /* The whole feature is script-driven; without it the button would do nothing. */
+  :global(html:not(.js)) .button-highlight {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .button-highlight {
+      transition: none;
+    }
+  }
+</style>
