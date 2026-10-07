@@ -1,0 +1,41 @@
+---
+// A citation into the source list: <Ref n={11} /> or <Ref n={[5, 8]} /> where
+// the prose cites more than one at once.
+interface Props {
+  n: number | number[];
+}
+
+const { n } = Astro.props;
+const numbers = Array.isArray(n) ? n : [n];
+---
+
+<sup class="footnote-group">{
+  numbers.map((number, index) => (
+    <>
+      {index > 0 && <span class="sep">,</span>}
+      <a
+        href={`#ref-${number}`}
+        class="footnote-ref"
+        aria-label={`Source ${number}`}
+      >{number}</a>
+    </>
+  ))
+}</sup>
+
+<style>
+  /* The <sup> does the raising; .footnote-ref keeps the colour and size and
+     must not raise a second time. */
+  .footnote-group {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    line-height: 0;
+  }
+
+  .footnote-group .footnote-ref {
+    vertical-align: baseline;
+  }
+
+  .sep {
+    color: var(--signal);
+  }
+</style>

@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build output
+dist/
+build/
+out/
+.next/
+.nuxt/
+.svelte-kit/
+.astro/
+.vercel/
+.cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Brand archive — 239 MB of InDesign sources, EPS and six-colourway logo sets.
+# The curated subset the build actually uses lives in public/brand/ and is committed.
+branding_suite/
+
+# Raw staging photos for the essay (bracket-numbered originals). The subset
+# actually used by the build is copied into src/assets/ and committed there.
+images_diagrams/
+
+# Editor & OS
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# Local settings (personal, not shared)
+.claude/settings.local.json
+
+.vercel

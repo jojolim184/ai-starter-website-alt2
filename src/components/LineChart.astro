@@ -1,0 +1,263 @@
+---
+// An emphasis line chart (dataviz skill: "one series is the point, rest are
+// context" -> 1 hue + gray). Signal Red marks the emphasized series — a 2px
+// stroke, not a fill, so it doesn't run into DESIGN.md's "never fills an
+// area" rule — and the rest sit in muted Obsidian.
+//
+// Lines render fully drawn in the markup: `stroke-dasharray`/`dashoffset`
+// are computed here at build time from the straight-segment geometry (no
+// runtime `getTotalLength()` needed), so no-JS and reduced-motion readers
+// see the finished diagram immediately. linechart.ts only ever toggles
+// `data-in-view` on scroll crossings, which CSS reacts to by animating
+// `stroke-dashoffset` from full (hidden) to 0 (drawn) — the same
+// draw-then-reset-on-exit idiom barchart.ts uses for its bars, so the chart
+// replays each time it re-enters the viewport.
+interface Series {
+  name: string;
+  points: number[];
+  emphasis?: boolean;
+}
+
+interface Props {
+  /** Figure number, e.g. '5'. */
+  fig: string;
+  title: string;
+  subtitle: string;
+  checkpoints: string[];
+  data: Series[];
+  sourceLine: string;
+}
+
+const { fig, title, subtitle, checkpoints, data, sourceLine } = Astro.props;
+
+const VIEW_WIDTH = 690;
+const VIEW_HEIGHT = 320;
+const LABEL_RESERVE = 132; // room for the end-of-line name labels
+const PLOT_LEFT = 28; // room for the y-axis "0%" label
+const PLOT_RIGHT = VIEW_WIDTH - LABEL_RESERVE;
+const PLOT_TOP = 16;
+const PLOT_BOTTOM = VIEW_HEIGHT - 40; // room for the x-axis day labels
+
+const allValues = data.flatMap((series) => series.points);
+const pad = (Math.max(...allValues, 0) - Math.min(...allValues, 0)) * 0.12;
+const domainMax = Math.max(...allValues, 0) + pad;
+const domainMin = Math.min(...allValues, 0) - pad;
+
+const xAt = (index: number) =>
+  PLOT_LEFT + (index / (checkpoints.length - 1)) * (PLOT_RIGHT - PLOT_LEFT);
+
+const yAt = (value: number) =>
+  PLOT_TOP + ((domainMax - value) / (domainMax - domainMin)) * (PLOT_BOTTOM - PLOT_TOP);
+
+const baselineY = yAt(0);
+
+// A dedicated draw duration rather than reusing --state/--count: those are
+// both tuned for small UI transitions (a fade, a number counting), and a
+// 690px-wide multi-segment line needs longer on screen to actually read as
+// growth rather than a quick reveal.
+const DRAW_MS = 1000;
+const STAGGER_MS = 140;
+
+const lines = data.map((series, index) => {
+  const points = series.points.map((value, i) => ({ x: xAt(i), y: yAt(value) }));
+
+  const length = points.slice(1).reduce((total, point, i) => {
+    const prev = points[i];
+    return total + Math.hypot(point.x - prev.x, point.y - prev.y);
+  }, 0);
+
+  const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
+  const end = points[points.length - 1];
+  const delay = index * STAGGER_MS;
+
+  // The end marker and label sit at the line's final point, so they should
+  // land once the line has actually grown there — not fade in at the same
+  // moment the draw starts, which would show them floating at the endpoint
+  // ahead of the line reaching it.
+  return { ...series, d, length, end, delay, labelDelay: delay + DRAW_MS };
+});
+
+// Only the first checkpoint and the one where the drop lands get an axis
+// label, matching the source chart's own sparse labelling — six labels on a
+// 560px plot would crowd the marks they're meant to support.
+const AXIS_LABEL_INDEXES = [0, 3];
+---
+
+<div class="line-chart" data-linechart>
+  <p class="chart-title">Fig {fig}. {title}</p>
+  <p class="chart-subtitle caption">{subtitle}</p>
+
+  <svg class="chart-svg" viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`} role="group" aria-label={title}>
+    <line class="chart-baseline" x1={PLOT_LEFT} y1={baselineY} x2={PLOT_RIGHT} y2={baselineY} />
+    <text class="chart-baseline-label" x={PLOT_LEFT - 6} y={baselineY - 4}>0%</text>
+
+    {
+      AXIS_LABEL_INDEXES.map((i) => (
+        <text class="chart-axis-label" x={xAt(i)} y={PLOT_BOTTOM + 20}>
+          {checkpoints[i]}
+        </text>
+      ))
+    }
+
+    {
+      lines.map((line) => (
+        <g style={`--line-delay: ${line.delay}ms; --label-delay: ${line.labelDelay}ms`}>
+          <path
+            class:list={['chart-line', { 'chart-line-emphasis': line.emphasis, 'chart-line-context': !line.emphasis }]}
+            d={line.d}
+            style={`--path-length: ${line.length}`}
+            role="img"
+            aria-label={`${line.name}: from ${line.points[0]}% to ${line.points[line.points.length - 1]}%`}
+          />
+          <circle
+            class:list={['chart-end-marker', { 'chart-end-marker-emphasis': line.emphasis }]}
+            cx={line.end.x}
+            cy={line.end.y}
+            r="4"
+          />
+          <text class="chart-end-label" x={line.end.x + 10} y={line.end.y + 3}>
+            {line.name}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+
+  <p class="chart-source caption">{sourceLine}</p>
+</div>
+
+<style>
+  .line-chart {
+    margin: var(--space-lg) 0;
+    max-width: var(--measure);
+  }
+
+  .chart-title {
+    margin: 0;
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    color: var(--obsidian);
+  }
+
+  .chart-subtitle {
+    margin: var(--space-xxs) 0 var(--space-sm);
+    color: var(--clay);
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .chart-baseline {
+    stroke: var(--obsidian);
+    stroke-width: 0.8;
+  }
+
+  .chart-baseline-label,
+  .chart-axis-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    fill: var(--clay);
+  }
+
+  .chart-baseline-label {
+    text-anchor: end;
+    dominant-baseline: middle;
+  }
+
+  .chart-axis-label {
+    text-anchor: middle;
+  }
+
+  .chart-line {
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--path-length);
+    stroke-dashoffset: var(--path-length);
+    /* 1s, not --count (500ms) or --state (300ms): both of those are tuned
+       for small UI transitions, and a 690px multi-segment path needs longer
+       on screen to read as growth — see DRAW_MS in the component script. */
+    transition: stroke-dashoffset 1s cubic-bezier(0.4, 0, 0.2, 1);
+    transition-delay: var(--line-delay, 0ms);
+  }
+
+  [data-in-view] .chart-line {
+    stroke-dashoffset: 0;
+  }
+
+  .chart-line-emphasis {
+    stroke: var(--signal);
+  }
+
+  /* The de-emphasis "gray": a muted step of the ink rather than the
+     Ink Inactive token, which DESIGN.md reserves for disabled/unvisited UI
+     states specifically, not chart context. 0.5 is the lowest step that
+     still clears the dataviz skill's 3:1 mark-contrast floor against
+     Parchment (validated: 0.45 -> 2.82, 0.5 -> 3.22). */
+  .chart-line-context {
+    stroke: var(--obsidian);
+    opacity: 0.5;
+  }
+
+  .chart-end-marker {
+    fill: var(--obsidian);
+    opacity: 0;
+    transition: opacity var(--state);
+    /* Lands once the line has actually grown to this point, not when the
+       draw starts — see labelDelay in the component script. */
+    transition-delay: var(--label-delay, 0ms);
+  }
+
+  .chart-end-marker-emphasis {
+    fill: var(--signal);
+  }
+
+  [data-in-view] .chart-end-marker {
+    opacity: 1;
+  }
+
+  /* Text carries no series color (marks-and-anatomy.md) — identity comes
+     from the swatch beside it, not from tinting the label itself. */
+  .chart-end-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    fill: var(--obsidian);
+    opacity: 0;
+    transition: opacity var(--state);
+    transition-delay: var(--label-delay, 0ms);
+  }
+
+  [data-in-view] .chart-end-label {
+    opacity: 1;
+  }
+
+  .chart-source {
+    margin: var(--space-sm) 0 0;
+    color: var(--clay);
+  }
+
+  /* No-JS: `data-in-view` never arrives, so the lines and labels must default
+     to their final, fully-drawn state instead of staying hidden forever. */
+  :global(html:not(.js)) .chart-line {
+    stroke-dashoffset: 0;
+  }
+
+  :global(html:not(.js)) .chart-end-marker,
+  :global(html:not(.js)) .chart-end-label {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart-line,
+    .chart-end-marker,
+    .chart-end-label {
+      transition: none;
+    }
+  }
+</style>

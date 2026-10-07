@@ -1,0 +1,175 @@
+---
+import { render } from 'astro:content';
+import Base from '../../layouts/Base.astro';
+import HubCard, { type Tone } from '../../components/HubCard.astro';
+import SourceList from '../../components/SourceList.astro';
+import {
+  getArticles,
+  categoryOf,
+  articleHref,
+  readingMinutes,
+  citedReferences,
+  type Article,
+  type CategoryId,
+} from '../../services/articles.ts';
+import '../../style/article.css';
+
+export async function getStaticPaths() {
+  const articles = await getArticles();
+  return articles.map((article) => ({ params: { slug: article.id }, props: { article } }));
+}
+
+interface Props {
+  article: Article;
+}
+
+const { article } = Astro.props;
+const { Content } = await render(article);
+
+const articles = await getArticles();
+const index = articles.findIndex((entry) => entry.id === article.id);
+const previous = articles[index - 1];
+const next = articles[index + 1];
+const category = categoryOf(article.data.category);
+const siblings = articles.filter((entry) => entry.data.category === article.data.category);
+const sources = citedReferences(article);
+const minutes = readingMinutes(article);
+
+// The three that follow, wrapping to the start once the reader reaches the end.
+const further = [1, 2, 3].map((step) => articles[(index + step) % articles.length]);
+
+const tones: Record<CategoryId, Tone> = {
+  foundations: 'clay',
+  'build-up': 'obsidian',
+  public: 'wash',
+};
+---
+
+<Base title={`${article.data.title} | Learning hub | ClearAI`} description={article.data.description}>
+  <main>
+    <header class="container article-head">
+      <nav class="crumbs meta-line" aria-label="Breadcrumb">
+        <a href="/">Learning hub</a>
+        <span aria-hidden="true">/</span>
+        <a href={`/#${category.id}`}>{category.title}</a>
+      </nav>
+
+      <div class="head-grid">
+        <div>
+          <span class="pill pill-tag reveal">{category.title} | {category.period}</span>
+          <h1 class="title-page article-title reveal">{article.data.title}</h1>
+        </div>
+        <div class="head-aside reveal">
+          <p class="serif">{article.data.excerpt}</p>
+          <p class="meta-line head-meta">ClearAI | {minutes} min read | Article {index + 1} of {articles.length}</p>
+        </div>
+      </div>
+
+      <div class="article-cover" data-tone={tones[article.data.category]} aria-hidden="true">
+        <span class="cover-label meta-line">Part {category.numeral}</span>
+        <span class="cover-mark">{article.data.period}</span>
+      </div>
+    </header>
+
+    <div class="container article-layout">
+      <aside class="article-aside">
+        <div class="aside-sticky">
+          <p class="meta-line aside-title">In {category.title}</p>
+          <ol class="aside-list">
+            {
+              siblings.map((entry) => (
+                <li>
+                  <a
+                    href={articleHref(entry)}
+                    aria-current={entry.id === article.id ? 'page' : undefined}
+                  >
+                    <span class="aside-year">{entry.data.period}</span>
+                    <span class="serif">{entry.data.title}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ol>
+          <a href="/glossary/" class="btn-outline aside-glossary">
+            Glossary <span class="arrow" aria-hidden="true">→</span>
+          </a>
+        </div>
+      </aside>
+
+      <article class="prose article-prose">
+        <Content />
+
+        {
+          sources.length > 0 && (
+            <section class="article-sources" aria-labelledby="sources-title">
+              <h2 id="sources-title" class="meta-line">Sources cited</h2>
+              <SourceList items={sources} />
+              <a href="/sources/" class="link-bracket">
+                [ All sources <span class="arrow">→</span> ]
+              </a>
+            </section>
+          )
+        }
+      </article>
+    </div>
+
+    <nav class="container pager" aria-label="Article">
+      {
+        previous ? (
+          <a href={articleHref(previous)} class="pager-link">
+            <span class="meta-line">← Previous</span>
+            <span class="serif pager-title">{previous.data.title}</span>
+          </a>
+        ) : (
+          <a href="/" class="pager-link">
+            <span class="meta-line">← Back to</span>
+            <span class="serif pager-title">The learning hub</span>
+          </a>
+        )
+      }
+      {
+        next ? (
+          <a href={articleHref(next)} class="pager-link pager-next">
+            <span class="meta-line">Next →</span>
+            <span class="serif pager-title">{next.data.title}</span>
+          </a>
+        ) : (
+          <a href="/glossary/" class="pager-link pager-next">
+            <span class="meta-line">Next →</span>
+            <span class="serif pager-title">Glossary of AI terms</span>
+          </a>
+        )
+      }
+    </nav>
+
+    <section class="container further" aria-labelledby="further-title">
+      <h2 id="further-title" class="title-section">Keep reading</h2>
+      <div class="further-grid">
+        {
+          further.map((entry) => {
+            const entryCategory = categoryOf(entry.data.category);
+            return (
+              <HubCard
+                href={articleHref(entry)}
+                title={entry.data.title}
+                excerpt={entry.data.excerpt}
+                mark={entry.data.period}
+                label={`Part ${entryCategory.numeral}`}
+                tone={tones[entry.data.category]}
+                meta={`ClearAI | ${readingMinutes(entry)} min read`}
+                tag={entryCategory.title}
+              />
+            );
+          })
+        }
+      </div>
+    </section>
+  </main>
+</Base>
+
+<script>
+  import '../../../assets/scripts/carousel.ts';
+  import '../../../assets/scripts/barchart.ts';
+  import '../../../assets/scripts/linechart.ts';
+  import '../../../assets/scripts/scalingchart.ts';
+</script>

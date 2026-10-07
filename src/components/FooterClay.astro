@@ -1,0 +1,118 @@
+---
+// Full bleed Clay band with Obsidian type. Note the direction: the live site
+// sets Obsidian on Clay, not Parchment on Clay.
+import humanMade from '../../assets/images/brand/human-made-01-signal-red.svg';
+---
+
+<footer class="footer-clay">
+  <div class="container footer-inner">
+    <div class="footer-rows">
+      <div class="footer-row">
+        <a href="mailto:hello@clearai.com.au" class="link-bracket-on-clay">
+          [HELLO@CLEARAI.COM.AU<span class="arrow">→</span> ]
+        </a>
+        <a href="tel:+61421932166" class="link-bracket-on-clay">
+          [0421 932 166<span class="arrow">→</span> ]
+        </a>
+      </div>
+
+      <hr class="footer-rule" />
+
+      <div class="footer-row footer-credit">
+        <span>ClearAI</span>
+        <img
+          src={humanMade.src}
+          alt="Human made"
+          class="human-made"
+          width="72"
+          height="24"
+        />
+      </div>
+    </div>
+
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/clearai-au/" class="social-label">
+        LinkedIn
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer-clay {
+    background-color: var(--clay);
+    color: var(--obsidian);
+    font-family: var(--face-mono);
+    font-size: var(--type-mono-base);
+  }
+
+  .footer-inner {
+    display: flex;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding-block: var(--space-lg);
+  }
+
+  .footer-rows {
+    flex: 1;
+  }
+
+  .footer-row {
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    flex-wrap: wrap;
+  }
+
+  /* Where a border sits on Clay it is drawn in Parchment. */
+  .footer-rule {
+    border: 0;
+    border-top: var(--border-hairline) solid var(--parchment);
+    margin: var(--space-sm) 0;
+  }
+
+  .footer-credit {
+    justify-content: space-between;
+  }
+
+  .human-made {
+    height: 24px;
+    width: auto;
+  }
+
+  /* A narrow column at the right edge with its own 0.8px rule. */
+  .footer-social {
+    display: flex;
+    align-items: center;
+    padding-left: var(--space-lg);
+    border-left: var(--border-hairline) solid var(--parchment);
+  }
+
+  .social-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--obsidian);
+    writing-mode: vertical-rl;
+  }
+
+  @media (max-width: 767px) {
+    .footer-inner {
+      flex-direction: column;
+    }
+
+    .footer-social {
+      padding-left: 0;
+      padding-top: var(--space-md);
+      border-left: 0;
+      border-top: var(--border-hairline) solid var(--parchment);
+    }
+
+    .social-label {
+      writing-mode: horizontal-tb;
+    }
+  }
+</style>

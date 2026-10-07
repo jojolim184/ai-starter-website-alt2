@@ -1,0 +1,54 @@
+---
+import Base from '../layouts/Base.astro';
+import SourceList from '../components/SourceList.astro';
+import { references } from '../data/references.ts';
+---
+
+<Base
+  title="Sources | Learning hub | ClearAI"
+  description="Every source the ClearAI learning hub cites, numbered as the articles cite them."
+  current="sources"
+>
+  <main class="container page">
+    <header class="page-head">
+      <p class="meta-line page-kicker">Reference</p>
+      <h1 class="title-page reveal">Sources</h1>
+      <p class="serif page-intro reveal">
+        {references.length} papers, reports and articles, numbered as the articles cite them. Where
+        a source is online, the link goes straight to it.
+      </p>
+    </header>
+    <div class="page-body">
+      <SourceList items={references} />
+    </div>
+  </main>
+</Base>
+
+<style>
+  .page {
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-band);
+  }
+
+  .page-head {
+    padding-bottom: var(--space-xl);
+    border-bottom: var(--border-hairline) solid var(--obsidian);
+  }
+
+  .page-kicker {
+    margin: 0 0 var(--space-md);
+    color: var(--clay);
+  }
+
+  .page-intro {
+    max-width: 560px;
+    margin: var(--space-lg) 0 0;
+    font-size: var(--type-body-serif-read);
+    line-height: 1.45;
+  }
+
+  .page-body {
+    max-width: 900px;
+    padding-top: var(--space-xl);
+  }
+</style>

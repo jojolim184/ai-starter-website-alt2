@@ -1,0 +1,43 @@
+---
+import SiteHeader from '../components/SiteHeader.astro';
+import CtaBand from '../components/CtaBand.astro';
+import FooterClay from '../components/FooterClay.astro';
+import thorndaleWoff2 from '../../assets/fonts/thorndale-amt-regular.woff2?url';
+import spaceMonoWoff2 from '../../assets/fonts/space-mono-regular.woff2?url';
+import '../../assets/styles/global.css';
+
+interface Props {
+  title: string;
+  description: string;
+  current?: 'hub' | 'glossary' | 'sources';
+}
+
+const { title, description, current } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en-AU">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <link rel="preload" href={spaceMonoWoff2} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={thorndaleWoff2} as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      document.documentElement.classList.add('js');
+    </script>
+  </head>
+
+  <body>
+    <SiteHeader current={current} />
+    <slot />
+    <CtaBand />
+    <FooterClay />
+
+    <script>
+      import '../../assets/scripts/reveal.ts';
+    </script>
+  </body>
+</html>

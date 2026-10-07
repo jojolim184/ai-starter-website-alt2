@@ -1,0 +1,38 @@
+---
+title: The year everything went public
+category: public
+order: 6
+period: "2022"
+excerpt: Image generators flood social media, then ChatGPT reaches a hundred million people in about two months.
+description: Stable Diffusion, Midjourney and the launch of ChatGPT, the year AI entered everyday vocabulary.
+---
+
+import Ref from '../../components/Ref.astro';
+import BarChart from '../../components/BarChart.astro';
+import { globalAiInvestment } from '../../data/investment.ts';
+
+For five years this had mostly played out away from the public. In 2022 it broke into the open.
+
+The first wave was visual. Stable Diffusion and Midjourney, both of which reached the public in
+2022, let anyone type a sentence and get back a striking image seconds later <Ref n={11} />. Social
+media filled up with AI art almost overnight, and artists and photographers started warning that
+their work was being copied and their livelihoods put at risk.
+
+Then, on 30 November 2022, OpenAI released ChatGPT <Ref n={12} />. Underneath, it was a friendly
+chat window sitting on top of the GPT technology the company had spent years refining. The plain
+conversational wrapper is what changed everything. Ordinary people could now ask an AI to explain
+an idea, write a poem, plan a trip or fix their code, and get back an answer that felt unnervingly
+human. ChatGPT passed an estimated hundred million users in about two months, one of the fastest
+take-ups of any product on record <Ref n={12} />. This was the moment "AI" entered the everyday
+vocabulary of hundreds of millions of people. The race was public now, and it was on.
+
+<BarChart
+  fig="4"
+  title="Global corporate investment in AI, 2013-2024"
+  data={globalAiInvestment.map((point) => ({ label: String(point.year), value: point.totalBn }))}
+  valuePrefix="$"
+  valueSuffix="bn"
+  refNumber={47}
+  sourceLine="Source: Quid, 2024. Chart: Stanford HAI, 2025 AI Index Report."
+/>
+

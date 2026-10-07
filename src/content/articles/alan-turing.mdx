@@ -1,0 +1,53 @@
+---
+title: Alan Turing and the thinking machine
+category: foundations
+order: 1
+period: "1950"
+excerpt: A wartime codebreaker asks whether a machine could think, and a summer workshop gives the field its name.
+description: How Alan Turing's question about thinking machines and the 1956 Dartmouth workshop started the field of artificial intelligence.
+---
+
+import Ref from '../../components/Ref.astro';
+import Cite from '../../components/Cite.astro';
+import ImageCarousel from '../../components/ImageCarousel.astro';
+import enigmaMachine from '../../../assets/images/articles/turing/enigma-machine.jpg';
+import bombeMachine from '../../../assets/images/articles/turing/bombe-machine.jpg';
+import alanTuringPhoto from '../../../assets/images/articles/turing/alan-turing.jpg';
+
+Long before anyone used the phrase artificial intelligence, Alan Turing was already turning over
+the idea of a thinking machine. <Cite n={1}>Turing was the mathematician who cracked Enigma</Cite>,
+the German cipher machine used in the Second World War <Ref n={1} />. After the war he helped
+design some of the earliest computers, laying groundwork that still sits under the technology we
+use today <Ref n={1} />. In 1950 he took on the harder question of whether a machine could think,
+and put forward <Cite n={2}>the Turing Test</Cite> as a way of deciding whether one was really
+"intelligent" <Ref n={2} />.
+
+<ImageCarousel size="compact" slides={[
+  {
+    src: enigmaMachine,
+    alt: 'A German Enigma cipher machine, open in its wooden case, showing its keyboard and rotor lamps.',
+    caption: 'Enigma Machine used by Germany in WW2',
+    fig: '1.1',
+    refNumber: 33,
+  },
+  {
+    src: bombeMachine,
+    alt: 'A Bombe machine, the electromechanical device used at Bletchley Park to help break Enigma.',
+    caption: 'Bombe machine used to crack Enigma',
+    fig: '1.2',
+    refNumber: 34,
+  },
+  {
+    src: alanTuringPhoto,
+    alt: 'A portrait photograph of Alan Turing.',
+    caption: 'Alan Turing',
+    fig: '1.3',
+    refNumber: 35,
+  },
+]} />
+
+The phrase itself arrived soon after. It was coined in <Cite n={3}>the 1955 proposal for the
+Dartmouth Workshop</Cite>, which ran the following year and is usually treated as the birth of the
+field <Ref n={3} />. The two decades from 1956 to 1976 brought real progress, most notably
+<Cite n={4}>the perceptron</Cite>, an early ancestor of the neural networks that everything now
+rests on <Ref n={4} />.

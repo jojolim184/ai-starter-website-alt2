@@ -1,0 +1,261 @@
+---
+// A single-series trend chart on a log y-axis (dataviz skill: one hue for a
+// magnitude story). The shaded band marks the "deep learning era" the
+// source chart itself highlights; the trend line is Clay Brown throughout,
+// and only the post-2010 landmark dots pick up Signal Red, marking them as
+// the noteworthy jumps the essay's own "scaling" section is about — a small
+// dot, not a fill, so it doesn't run into DESIGN.md's "never fills an area"
+// rule.
+//
+// Same draw-in idiom as LineChart.astro: the trend line's dash length is
+// computed at build time (no runtime getTotalLength()), and each landmark's
+// reveal delay is set proportional to its own x-position, so a landmark
+// lights up right as the drawing line reaches it — one continuous line
+// timed to double as eight sequential reveals. linechart.ts's replay
+// pattern is reused via scalingchart.ts, its single-series analogue.
+import type { ComputeLandmark } from '../data/computeScale.ts';
+
+interface Props {
+  /** Figure number, e.g. '2'. */
+  fig: string;
+  title: string;
+  subtitle: string;
+  trendAnchors: [number, number][];
+  landmarks: ComputeLandmark[];
+  sourceLine: string;
+}
+
+const { fig, title, subtitle, trendAnchors, landmarks, sourceLine } = Astro.props;
+
+const VIEW_WIDTH = 690;
+const VIEW_HEIGHT = 380;
+const PLOT_LEFT = 96; // room for "100 septillion" etc.
+const PLOT_RIGHT = VIEW_WIDTH - 10;
+const PLOT_TOP = 14;
+const PLOT_BOTTOM = VIEW_HEIGHT - 34;
+
+const YEAR_MIN = 1950;
+const YEAR_MAX = 2025;
+const EXP_MIN = 2; // 10^2
+const EXP_MAX = 26; // 10^26
+const ERA_START = 2010;
+
+const xAt = (year: number) =>
+  PLOT_LEFT + ((year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)) * (PLOT_RIGHT - PLOT_LEFT);
+
+const yAt = (flops: number) => {
+  const exp = Math.log10(flops);
+  return PLOT_TOP + ((EXP_MAX - exp) / (EXP_MAX - EXP_MIN)) * (PLOT_BOTTOM - PLOT_TOP);
+};
+
+const trendPoints = trendAnchors.map(([year, flops]) => ({ x: xAt(year), y: yAt(flops) }));
+const trendLength = trendPoints.slice(1).reduce((total, point, i) => {
+  const prev = trendPoints[i];
+  return total + Math.hypot(point.x - prev.x, point.y - prev.y);
+}, 0);
+const trendPath = trendPoints.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x},${p.y}`).join(' ');
+
+const DRAW_MS = 1400; // longer than LineChart's 1s: this line spans 75 years, not 5 days
+
+const points = landmarks.map((landmark) => {
+  const x = xAt(landmark.year);
+  const fraction = (x - PLOT_LEFT) / (PLOT_RIGHT - PLOT_LEFT);
+  return { ...landmark, x, y: yAt(landmark.flops), delay: Math.round(fraction * DRAW_MS) };
+});
+
+const yGrid = [
+  { exp: 2, name: '100' },
+  { exp: 6, name: '1 million' },
+  { exp: 10, name: '10 billion' },
+  { exp: 14, name: '100 trillion' },
+  { exp: 18, name: '1 quintillion' },
+  { exp: 22, name: '10 sextillion' },
+  { exp: 26, name: '100 septillion' },
+].map((tick) => ({ ...tick, y: yAt(10 ** tick.exp) }));
+
+const xTicks = [1950, 1965, 1980, 1995, 2010, 2025];
+---
+
+<div class="scaling-chart" data-scalingchart>
+  <p class="chart-title">Fig {fig}. {title}</p>
+  <p class="chart-subtitle caption">{subtitle}</p>
+
+  <svg class="chart-svg" viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`} role="group" aria-label={title}>
+    <rect
+      class="chart-era-band"
+      x={xAt(ERA_START)}
+      y={PLOT_TOP}
+      width={PLOT_RIGHT - xAt(ERA_START)}
+      height={PLOT_BOTTOM - PLOT_TOP}
+    />
+
+    {
+      yGrid.map((tick) => (
+        <>
+          <line class="chart-gridline" x1={PLOT_LEFT} y1={tick.y} x2={PLOT_RIGHT} y2={tick.y} />
+          <text class="chart-y-label" x={PLOT_LEFT - 8} y={tick.y + 3}>
+            {tick.name}
+          </text>
+        </>
+      ))
+    }
+
+    {
+      xTicks.map((year) => (
+        <text class="chart-x-label" x={xAt(year)} y={PLOT_BOTTOM + 20}>
+          {year}
+        </text>
+      ))
+    }
+
+    <path class="chart-trend" d={trendPath} style={`--path-length: ${trendLength}`} />
+
+    {
+      points.map((point) => (
+        <g style={`--point-delay: ${point.delay}ms`}>
+          <circle
+            class:list={['chart-point', { 'chart-point-era2010': point.era2010 }]}
+            cx={point.x}
+            cy={point.y}
+            r="4"
+            role="img"
+            aria-label={`${point.label}, ${point.year}`}
+          />
+          <text
+            class="chart-point-label"
+            x={point.x + point.dx}
+            y={point.y + point.dy}
+            text-anchor={point.dx < 0 ? 'end' : 'start'}
+          >
+            {point.label}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+
+  <p class="chart-source caption">{sourceLine}</p>
+</div>
+
+<style>
+  .scaling-chart {
+    margin: var(--space-lg) 0;
+    max-width: var(--measure);
+  }
+
+  .chart-title {
+    margin: 0;
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    color: var(--obsidian);
+  }
+
+  .chart-subtitle {
+    margin: var(--space-xxs) 0 var(--space-sm);
+    color: var(--clay);
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* The source chart's own shaded callout for "since 2010" — a tint, not a
+     saturated fill, so it reads as background rather than a data mark. */
+  .chart-era-band {
+    fill: var(--clay);
+    opacity: 0.08;
+  }
+
+  .chart-gridline {
+    stroke: var(--obsidian);
+    stroke-width: 0.4;
+    opacity: 0.25;
+  }
+
+  .chart-y-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    fill: var(--clay);
+    text-anchor: end;
+  }
+
+  .chart-x-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    fill: var(--clay);
+    text-anchor: middle;
+  }
+
+  .chart-trend {
+    fill: none;
+    stroke: var(--clay);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: var(--path-length);
+    stroke-dashoffset: var(--path-length);
+    transition: stroke-dashoffset 1.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  [data-in-view] .chart-trend {
+    stroke-dashoffset: 0;
+  }
+
+  .chart-point {
+    fill: var(--obsidian);
+    opacity: 0;
+    transition: opacity var(--state);
+    transition-delay: var(--point-delay, 0ms);
+  }
+
+  .chart-point-era2010 {
+    fill: var(--signal);
+  }
+
+  [data-in-view] .chart-point {
+    opacity: 1;
+  }
+
+  /* Text carries no series color (marks-and-anatomy.md) — the dot beside it
+     carries identity, including which era a landmark belongs to. */
+  .chart-point-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    fill: var(--obsidian);
+    opacity: 0;
+    transition: opacity var(--state);
+    transition-delay: var(--point-delay, 0ms);
+  }
+
+  [data-in-view] .chart-point-label {
+    opacity: 1;
+  }
+
+  .chart-source {
+    margin: var(--space-sm) 0 0;
+    color: var(--clay);
+  }
+
+  /* No-JS: `data-in-view` never arrives, so the trend line and landmarks
+     must default to their final, fully-drawn state. */
+  :global(html:not(.js)) .chart-trend {
+    stroke-dashoffset: 0;
+  }
+
+  :global(html:not(.js)) .chart-point,
+  :global(html:not(.js)) .chart-point-label {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart-trend,
+    .chart-point,
+    .chart-point-label {
+      transition: none;
+    }
+  }
+</style>

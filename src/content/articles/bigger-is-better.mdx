@@ -1,0 +1,34 @@
+---
+title: Bigger is better
+category: build-up
+order: 4
+period: "2020"
+excerpt: GPT-3 arrives at a hundred times the size of its predecessor, and scale becomes the industry's guiding bet.
+description: GPT-3 and the scaling insight, the idea that raw size and data could stand in for hand-built design.
+---
+
+import Ref from '../../components/Ref.astro';
+import ScalingChart from '../../components/ScalingChart.astro';
+import { trendAnchors, computeLandmarks } from '../../data/computeScale.ts';
+
+In 2020, OpenAI released GPT-3, and it shifted the whole conversation. It was more than a hundred
+times the size of its predecessor, trained on a large slice of the public internet <Ref n={8} />.
+The lesson developers took away was plain: make these systems bigger, feed them more data, and
+they get noticeably smarter, often in ways nobody predicted. GPT-3 could write essays, answer
+questions, draft emails and knock out simple code, none of which it had been trained to do
+specifically.
+
+<ScalingChart
+  fig="3"
+  title="Training computation has doubled every ~6 months since 2010"
+  subtitle="Compute in floating-point operations (FLOP), shown on a logarithmic scale. From 1950 to 2010 it doubled roughly every 21 months; since 2010, roughly every 6 months."
+  trendAnchors={trendAnchors}
+  landmarks={computeLandmarks}
+  sourceLine="Data source: Epoch (2024), via Our World in Data. Trend line and landmark values approximate, for illustration."
+/>
+
+This "scaling" insight, the idea that raw size and data could stand in for clever hand-built
+design, became the industry's guiding bet for the next few years. It also meant AI was about to
+get expensive, because bigger systems need more chips, more electricity and more money. GPT-3
+mostly stayed with developers and businesses, so the wider public hadn't felt the change yet.
+

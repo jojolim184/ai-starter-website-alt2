@@ -1,0 +1,202 @@
+---
+// A single-hue, sequential bar chart (dataviz skill: "compare magnitude" ->
+// bar/column -> sequential). Bars render at full geometry in the markup —
+// no-JS and reduced-motion readers see the finished chart immediately — and
+// barchart.ts toggles `data-in-view` on every scroll crossing (not just the
+// first), which CSS and a small count-up loop react to, so the bars shoot up
+// from the baseline each time the chart re-enters the viewport. The
+// 4px-rounded-top / square-baseline mark spec
+// comes from a `<rect>` with a uniform 4px radius: true top-only rounding
+// would need a hand-built path, which can't `transform: scaleY()` reliably
+// across browsers, and the 4px bottom corners are imperceptible against the
+// baseline at this scale.
+import Ref from './Ref.astro';
+
+interface Point {
+  label: string;
+  value: number;
+}
+
+interface Props {
+  /** Figure number, e.g. '3'. */
+  fig: string;
+  title: string;
+  data: Point[];
+  /** e.g. '$' */
+  valuePrefix?: string;
+  /** e.g. 'bn' */
+  valueSuffix?: string;
+  /** Source-list number, if this figure has one in images_diagrams_sources.txt. */
+  refNumber?: number;
+  sourceLine: string;
+}
+
+const { fig, title, data, valuePrefix = '', valueSuffix = '', refNumber, sourceLine } = Astro.props;
+
+const VIEW_WIDTH = 690;
+const VIEW_HEIGHT = 300;
+const AXIS_Y = 250;
+const TOP_PADDING = 28; // room for the tallest value label
+const BAR_CAP = 24; // marks-and-anatomy.md: bars <= 24px thick
+
+const max = Math.max(...data.map((d) => d.value));
+const plotHeight = AXIS_Y - TOP_PADDING;
+const slotWidth = VIEW_WIDTH / data.length;
+const barWidth = Math.min(BAR_CAP, slotWidth * 0.55);
+
+const bars = data.map((point, index) => {
+  const height = (point.value / max) * plotHeight;
+  const x = index * slotWidth + (slotWidth - barWidth) / 2;
+  return {
+    ...point,
+    x,
+    y: AXIS_Y - height,
+    width: barWidth,
+    height,
+  };
+});
+
+const formatValue = (value: number) => `${valuePrefix}${value.toFixed(2)}${valueSuffix}`;
+---
+
+<div class="bar-chart" data-barchart data-prefix={valuePrefix} data-suffix={valueSuffix}>
+  <p class="chart-title">
+    Fig {fig}. {title}
+    {refNumber && <Ref n={refNumber} />}
+  </p>
+
+  <svg class="chart-svg" viewBox={`0 0 ${VIEW_WIDTH} ${VIEW_HEIGHT}`} role="group" aria-label={title}>
+    <line class="chart-baseline" x1="0" y1={AXIS_Y} x2={VIEW_WIDTH} y2={AXIS_Y} />
+
+    {
+      bars.map((bar, index) => (
+        <g class="chart-bar-group" style={`--bar-delay: ${index * 40}ms`}>
+          <rect
+            class="chart-bar"
+            data-value={bar.value}
+            x={bar.x}
+            y={bar.y}
+            width={bar.width}
+            height={bar.height}
+            rx="4"
+            tabindex="0"
+            role="img"
+            aria-label={`${bar.label}: ${formatValue(bar.value)}`}
+          >
+            <title>
+              {bar.label}: {formatValue(bar.value)}
+            </title>
+          </rect>
+          <text
+            class="chart-value"
+            data-chart-value
+            data-value={bar.value}
+            x={bar.x + bar.width / 2}
+            y={bar.y - 8}
+          >
+            {formatValue(bar.value)}
+          </text>
+          <text class="chart-label" x={bar.x + bar.width / 2} y={AXIS_Y + 16}>
+            {bar.label}
+          </text>
+        </g>
+      ))
+    }
+  </svg>
+
+  <p class="chart-source caption">{sourceLine}</p>
+</div>
+
+<style>
+  .bar-chart {
+    margin: var(--space-lg) 0;
+    max-width: var(--measure);
+  }
+
+  .chart-title {
+    margin: 0 0 var(--space-sm);
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    color: var(--obsidian);
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .chart-baseline {
+    stroke: var(--obsidian);
+    stroke-width: 0.8;
+  }
+
+  /* Grows from the baseline: scaleY(0) to scaleY(1), anchored at the bottom
+     of the bar's own box rather than the SVG origin. `transform-box: fill-box`
+     is what makes the percentage-based transform-origin mean "this rect,"
+     not "the whole viewBox." */
+  .chart-bar {
+    fill: var(--clay);
+    transform-box: fill-box;
+    transform-origin: center bottom;
+    transform: scaleY(0);
+    transition: transform var(--count), fill var(--state);
+    transition-delay: var(--bar-delay, 0ms), 0ms;
+    cursor: pointer;
+  }
+
+  [data-in-view] .chart-bar {
+    transform: scaleY(1);
+  }
+
+  .chart-bar:hover,
+  .chart-bar:focus-visible {
+    fill: var(--signal);
+    outline: none;
+  }
+
+  .chart-value {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    text-anchor: middle;
+    fill: var(--obsidian);
+    opacity: 0;
+    transition: opacity var(--state);
+    transition-delay: var(--bar-delay, 0ms);
+  }
+
+  [data-in-view] .chart-value {
+    opacity: 1;
+  }
+
+  .chart-label {
+    font-family: var(--face-mono);
+    font-size: var(--type-caption);
+    text-anchor: middle;
+    fill: var(--clay);
+  }
+
+  .chart-source {
+    margin: var(--space-sm) 0 0;
+    color: var(--clay);
+  }
+
+  /* No-JS: `data-in-view` never arrives, so the bars must default to their
+     full, final state rather than staying collapsed at scaleY(0) forever. */
+  :global(html:not(.js)) .chart-bar {
+    transform: scaleY(1);
+  }
+
+  :global(html:not(.js)) .chart-value {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .chart-bar,
+    .chart-value {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,255 @@
+---
+// A second photo-plate-bordered carousel, sibling to ImageCarousel.astro:
+// same DOM contract (`data-carousel` / `data-carousel-slide` /
+// `data-carousel-caption` / `data-carousel-dot` / `data-carousel-prev` /
+// `data-carousel-next`), so carousel.ts drives this one with zero changes.
+// The difference is only what a slide contains: two images (a leader
+// portrait and their product) laid side by side instead of one full-bleed
+// image, sharing a single caption.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Ref from './Ref.astro';
+
+interface Slide {
+  leader: { src: ImageMetadata; alt: string; fig: string; refNumber?: number };
+  product: { src: ImageMetadata; alt: string; fig: string; refNumber?: number };
+  caption: string;
+}
+
+interface Props {
+  slides: Slide[];
+}
+
+const { slides } = Astro.props;
+---
+
+<figure class="carousel" data-carousel>
+  <div class="pair-frame">
+    {
+      slides.map((slide, index) => (
+        <div class="carousel-slide" data-carousel-slide data-current={index === 0 ? '' : undefined}>
+          <div class="pair-image pair-leader">
+            <Image src={slide.leader.src} alt={slide.leader.alt} class="pair-img" />
+          </div>
+          <div class="pair-image pair-product">
+            <Image src={slide.product.src} alt={slide.product.alt} class="pair-img" />
+          </div>
+        </div>
+      ))
+    }
+
+    <button type="button" class="carousel-arrow carousel-arrow-prev" data-carousel-prev aria-label="Previous pair">
+      <span aria-hidden="true">‹</span>
+    </button>
+    <button type="button" class="carousel-arrow carousel-arrow-next" data-carousel-next aria-label="Next pair">
+      <span aria-hidden="true">›</span>
+    </button>
+  </div>
+
+  <div class="carousel-foot">
+    <figcaption class="carousel-captions">
+      {
+        slides.map((slide, index) => (
+          <span class="carousel-caption caption" data-carousel-caption data-current={index === 0 ? '' : undefined}>
+            <span class="carousel-fig">
+              Fig {slide.leader.fig}, {slide.product.fig}.
+            </span> {slide.caption}
+            {slide.leader.refNumber && <Ref n={slide.leader.refNumber} />}
+            {slide.product.refNumber && <Ref n={slide.product.refNumber} />}
+          </span>
+        ))
+      }
+    </figcaption>
+
+    <div class="carousel-dots" role="tablist" aria-label="Choose pair">
+      {
+        slides.map((slide, index) => (
+          <button
+            type="button"
+            class="carousel-dot"
+            data-carousel-dot
+            role="tab"
+            aria-label={`Show pair ${index + 1} of ${slides.length}`}
+            aria-current={index === 0 ? 'true' : 'false'}
+          />
+        ))
+      }
+    </div>
+  </div>
+</figure>
+
+<style>
+  .carousel {
+    margin: var(--space-lg) 0;
+  }
+
+  /* Slides stack absolutely (for the crossfade), so the frame carries the
+     only real height on the page — 220px fits a 3:4 portrait next to a 16:9
+     product shot without either one feeling cramped. */
+  .pair-frame {
+    position: relative;
+    height: 220px;
+    max-width: var(--measure);
+  }
+
+  /* All slides stack in place; only `data-current` is visible. Position,
+     don't unmount, so the crossfade has two layers to cross between. */
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: stretch;
+    gap: var(--space-sm);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--state), visibility var(--state);
+  }
+
+  .carousel-slide[data-current] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Fixed height, natural width from the aspect ratio — two photos laid side
+     by side rather than forced into a shared box. */
+  .pair-image {
+    height: 100%;
+    flex: none;
+    overflow: hidden;
+
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-none);
+  }
+
+  .pair-leader {
+    aspect-ratio: 3 / 4;
+  }
+
+  .pair-product {
+    aspect-ratio: 16 / 9;
+  }
+
+  .pair-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-dot);
+    color: var(--obsidian);
+    font-family: var(--face-mono);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+
+    transition: color var(--state);
+  }
+
+  .carousel-arrow:hover,
+  .carousel-arrow:focus-visible {
+    color: var(--signal);
+  }
+
+  .carousel-arrow-prev {
+    left: var(--space-sm);
+  }
+
+  .carousel-arrow-next {
+    right: var(--space-sm);
+  }
+
+  .carousel-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+    max-width: var(--measure);
+  }
+
+  /* Captions stack the same way the slides do: all present, one visible. */
+  .carousel-captions {
+    position: relative;
+    flex: 1;
+    min-height: calc(var(--type-caption) * 1.5);
+  }
+
+  .carousel-caption {
+    position: absolute;
+    inset: 0;
+    color: var(--clay);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--state), visibility var(--state);
+  }
+
+  .carousel-fig {
+    color: var(--obsidian);
+  }
+
+  .carousel-caption[data-current] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: var(--space-xs);
+    flex: none;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-dot);
+    cursor: pointer;
+    transition: background-color var(--state);
+  }
+
+  .carousel-dot[aria-current='true'] {
+    background-color: var(--signal);
+    border-color: var(--signal);
+  }
+
+  /* The whole feature is script-driven: without JS there is no way to change
+     `data-current`, so show only the first slide and drop the now-useless
+     controls, same fallback the glossary toggle and figures panel use. */
+  :global(html:not(.js)) .carousel-arrow,
+  :global(html:not(.js)) .carousel-dots {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .pair-frame {
+      height: 160px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-slide,
+    .carousel-caption,
+    .carousel-arrow,
+    .carousel-dot {
+      transition: none;
+    }
+  }
+</style>

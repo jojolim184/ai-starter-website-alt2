@@ -1,0 +1,159 @@
+---
+// The floating white pill from clearai.com.au, made sticky so the hub's
+// navigation stays in reach on long article pages. It carries the system's
+// one shadow.
+import logo from '../../assets/images/brand/logo-secondary-obsidian.svg';
+
+interface Props {
+  current?: 'hub' | 'glossary' | 'sources';
+}
+
+const { current } = Astro.props;
+
+const links = [
+  { href: '/', label: 'Learning hub', key: 'hub' },
+  { href: '/glossary/', label: 'Glossary', key: 'glossary' },
+  { href: '/sources/', label: 'Sources', key: 'sources' },
+];
+---
+
+<header class="site-header">
+  <nav class="nav-pill" aria-label="Site">
+    <a href="/" class="nav-home" aria-label="ClearAI learning hub, home">
+      <img src={logo.src} alt="ClearAI" width="75" height="19" />
+    </a>
+    <ul class="nav-links">
+      {
+        links.map((link) => (
+          <li>
+            <a
+              href={link.href}
+              class="nav-link"
+              aria-current={current === link.key ? 'page' : undefined}
+            >
+              {link.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <a href="https://www.clearai.com.au/" class="btn-outline nav-cta">
+      clearai.com.au <span class="arrow" aria-hidden="true">→</span>
+    </a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: var(--space-md);
+    z-index: 20;
+    padding-inline: var(--space-lg);
+    margin-top: var(--space-md);
+    pointer-events: none;
+  }
+
+  .nav-pill {
+    pointer-events: auto;
+    max-width: var(--container);
+    margin-inline: auto;
+    display: flex;
+    align-items: center;
+    gap: var(--space-lg);
+    min-height: 64px;
+    padding: var(--space-xs) var(--space-xs) var(--space-xs) var(--space-lg);
+    background-color: var(--nav-white);
+    border-radius: var(--rounded-pill);
+    box-shadow: rgba(0, 0, 0, 0.25) 0 2px 5px;
+    animation: fadeInDown 1s ease both;
+  }
+
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-40px);
+    }
+  }
+
+  .nav-home {
+    display: flex;
+    align-items: center;
+    flex: none;
+  }
+
+  .nav-links {
+    display: flex;
+    align-items: center;
+    margin: 0 auto;
+    padding: 0;
+    list-style: none;
+  }
+
+  .nav-link {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 var(--space-md);
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--obsidian);
+    transition: color var(--state);
+  }
+
+  .nav-link:hover,
+  .nav-link:focus-visible {
+    color: var(--signal);
+  }
+
+  .nav-link[aria-current='page'] {
+    text-decoration: underline;
+    text-decoration-thickness: 0.8px;
+    text-underline-offset: 6px;
+  }
+
+  @media (max-width: 899px) {
+    .nav-cta {
+      display: none;
+    }
+
+    .nav-links {
+      margin-right: 0;
+    }
+  }
+
+  @media (max-width: 767px) {
+    .site-header {
+      padding-inline: var(--space-sm);
+      top: var(--space-sm);
+      margin-top: var(--space-sm);
+    }
+
+    .nav-pill {
+      min-height: 56px;
+      gap: var(--space-sm);
+      padding-left: var(--space-md);
+    }
+
+    .nav-link {
+      padding: 0 var(--space-xs);
+      font-size: var(--type-caption);
+    }
+
+    /* Sources is one tap away from every article, so it gives up its slot. */
+    .nav-links li:last-child {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav-pill {
+      animation: none;
+    }
+
+    .nav-link {
+      transition: none;
+    }
+  }
+</style>

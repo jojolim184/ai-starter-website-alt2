@@ -1,0 +1,302 @@
+---
+import Base from '../layouts/Base.astro';
+import HubGroup from '../components/HubGroup.astro';
+import HubCard, { type Tone } from '../components/HubCard.astro';
+import Statement from '../components/Statement.astro';
+import {
+  getArticles,
+  categories,
+  articleHref,
+  readingMinutes,
+  type CategoryId,
+} from '../services/articles.ts';
+import { references } from '../data/references.ts';
+import { glossary } from '../data/glossary.ts';
+
+const articles = await getArticles();
+
+const tones: Record<CategoryId, Tone> = {
+  foundations: 'clay',
+  'build-up': 'obsidian',
+  public: 'wash',
+};
+
+const groups = categories.map((category) => ({
+  category,
+  articles: articles.filter((article) => article.data.category === category.id),
+}));
+
+const columnsFor = (count: number) => (count === 2 || count === 4 ? 2 : 3);
+
+const filters = [
+  { value: 'all', label: 'All', count: articles.length + 2 },
+  ...groups.map(({ category, articles }) => ({
+    value: category.id,
+    label: category.title,
+    count: articles.length,
+  })),
+  { value: 'reference', label: 'Reference', count: 2 },
+];
+---
+
+<Base
+  title="Learning hub | The history of AI | ClearAI"
+  description="A short, sourced history of artificial intelligence from 1950 to 2026, in eleven articles. The learning hub for readers of analogue by ClearAI."
+  current="hub"
+>
+  <main>
+    <section class="hero container">
+      <p class="hero-eyebrow pill reveal">
+        <span class="dot-marker" aria-hidden="true"></span>
+        The history of AI, 1950 to 2026
+      </p>
+
+      <div class="hero-grid">
+        <div class="hero-title-col">
+          <h1 class="title-hub reveal">Learning hub</h1>
+          <div class="hero-actions reveal">
+            <a href={articleHref(articles[0])} class="btn-outline">
+              Start at the beginning <span class="arrow" aria-hidden="true">→</span>
+            </a>
+            <a href="/glossary/" class="btn-outline">Glossary</a>
+          </div>
+        </div>
+
+        <div class="hero-copy serif reveal-group">
+          <p class="reveal">
+            Here we gather what readers of <em>analogue</em> need to follow the conversation about
+            AI. Eleven short articles run from Alan Turing's question in 1950 to the release race of
+            2026, each one readable over a cup of coffee.
+          </p>
+          <p class="reveal">
+            Read them in order for the whole story, or open the one you need. Every claim links to
+            its source, and the glossary explains the terms as you meet them.
+          </p>
+          <dl class="hero-facts meta-line reveal">
+            <div><dt>Articles</dt><dd>{articles.length}</dd></div>
+            <div><dt>Sources</dt><dd>{references.length}</dd></div>
+            <div><dt>Terms</dt><dd>{glossary.length}</dd></div>
+          </dl>
+        </div>
+      </div>
+    </section>
+
+    <div class="container hub">
+      <div class="filters" role="group" aria-label="Filter the learning hub">
+        {
+          filters.map((filter) => (
+            <button
+              type="button"
+              class="pill filter"
+              data-filter={filter.value}
+              aria-pressed={filter.value === 'all' ? 'true' : 'false'}
+            >
+              {filter.label}
+              <span class="filter-count">{filter.count}</span>
+            </button>
+          ))
+        }
+      </div>
+
+      {
+        groups.map(({ category, articles: list }) => (
+          <HubGroup
+            id={category.id}
+            title={category.title}
+            kicker={`Part ${category.numeral} | ${category.period}`}
+            intro={category.reading}
+            columns={columnsFor(list.length)}
+          >
+            {list.map((article) => (
+              <HubCard
+                href={articleHref(article)}
+                title={article.data.title}
+                excerpt={article.data.excerpt}
+                mark={article.data.period}
+                label={`Part ${category.numeral}`}
+                tone={tones[category.id]}
+                meta={`ClearAI | ${readingMinutes(article)} min read`}
+                tag={category.title}
+              />
+            ))}
+          </HubGroup>
+        ))
+      }
+
+      <HubGroup
+        id="reference"
+        title="Reference"
+        kicker="Keep these open while you read"
+        intro="The vocabulary and the evidence behind every article."
+        columns={2}
+      >
+        <HubCard
+          href="/glossary/"
+          title="Glossary of AI terms"
+          excerpt={`${glossary.length} terms, companies and people, each explained in a sentence or two.`}
+          mark="A-Z"
+          label="Reference"
+          tone="outline"
+          meta={`${glossary.length} entries`}
+          tag="Reference"
+        />
+        <HubCard
+          href="/sources/"
+          title="Sources"
+          excerpt="Every paper, report and article the hub draws on, numbered as the articles cite them."
+          mark={`[${references.length}]`}
+          label="Reference"
+          tone="outline"
+          meta={`${references.length} sources`}
+          tag="Reference"
+        />
+      </HubGroup>
+    </div>
+
+    <div class="container">
+      <Statement>
+        The history of modern AI is, so far, a story with <em>real momentum</em> and
+        <em>no clear ending</em>.
+      </Statement>
+    </div>
+  </main>
+</Base>
+
+<script>
+  import '../../assets/scripts/hub.ts';
+</script>
+
+<style>
+  .hero {
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-band);
+  }
+
+  .hero-eyebrow {
+    display: flex;
+    width: fit-content;
+    margin: 0 auto;
+    padding: var(--space-sm) var(--space-lg);
+    gap: var(--space-sm);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
+    gap: var(--space-xxl);
+    align-items: end;
+    margin-top: var(--space-xxl);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-top: var(--space-xl);
+  }
+
+  .hero-copy {
+    font-size: var(--type-body-serif-read);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  .hero-copy p {
+    margin: 0 0 var(--space-lg);
+  }
+
+  .hero-copy em {
+    font-style: italic;
+  }
+
+  .hero-facts {
+    display: flex;
+    gap: var(--space-xl);
+    margin: var(--space-xl) 0 0;
+    padding-top: var(--space-md);
+    border-top: var(--border-hairline) solid var(--clay);
+  }
+
+  .hero-facts dt {
+    color: var(--clay);
+  }
+
+  .hero-facts dd {
+    margin: var(--space-xxs) 0 0;
+    font-family: var(--face-serif);
+    font-size: var(--type-title-sub);
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  .hub {
+    padding-bottom: var(--space-band);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+    margin-bottom: var(--space-xxl);
+  }
+
+  .filter {
+    cursor: pointer;
+    min-height: 40px;
+    transition: background-color var(--state), color var(--state);
+  }
+
+  .filter:hover,
+  .filter[aria-pressed='true'] {
+    background-color: var(--obsidian);
+    color: var(--parchment);
+  }
+
+  .filter-count {
+    color: var(--clay);
+    transition: color var(--state);
+  }
+
+  .filter:hover .filter-count,
+  .filter[aria-pressed='true'] .filter-count {
+    color: var(--parchment);
+    opacity: 0.6;
+  }
+
+  :global(html:not(.js)) .filters {
+    display: none;
+  }
+
+  :global([data-group][hidden]) {
+    display: none;
+  }
+
+  :global(.hub-group[hidden] + .hub-group),
+  .filters + :global(.hub-group) {
+    margin-top: 0;
+  }
+
+  @media (max-width: 1023px) {
+    .hero-grid {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  @media (max-width: 767px) {
+    .hero-eyebrow {
+      margin: 0;
+    }
+
+    .hero-grid {
+      margin-top: var(--space-xl);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .filter,
+    .filter-count {
+      transition: none;
+    }
+  }
+</style>

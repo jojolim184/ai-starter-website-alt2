@@ -1,0 +1,45 @@
+---
+// The manifesto moment: 36px centred Space Mono, one Signal Red dot above the
+// first word, key phrases lifted into Clay with <em>. It sits alone in its band
+// with nothing sharing the space.
+---
+
+<div class="statement band reveal">
+  <span class="dot-marker" aria-hidden="true"></span>
+  <!-- A div, not a p: MDX wraps slotted prose in its own <p>, and a nested one
+       gets hoisted out by the parser, which drops these styles on the floor. -->
+  <div class="statement-text">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .statement {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-lg);
+    text-align: center;
+  }
+
+  .statement-text {
+    max-width: 720px;
+    font-family: var(--face-mono);
+    font-size: var(--type-statement-lg);
+    line-height: 1.3;
+  }
+
+  /* The paragraph MDX wraps around the slotted prose. */
+  .statement-text :global(p) {
+    margin: 0;
+    font-family: inherit;
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  /* Emphasis comes from colour, never from weight. */
+  .statement-text :global(em) {
+    color: var(--clay);
+    font-style: normal;
+  }
+</style>

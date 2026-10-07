@@ -1,0 +1,442 @@
+/*
+ * ClearAI design language, set out as a learning hub.
+ *
+ * Tokens are transcribed from DESIGN.md. The layout vocabulary (eyebrow pill,
+ * oversized hub title, filter pills, collapsible card groups) follows the
+ * aiadvancements.com.au learning hub; everything it is drawn with is ClearAI.
+ *
+ * Departures from DESIGN.md, made for the hub layout:
+ *   pills (eyebrow, filters, tags, outline buttons) take the nav pill's radius.
+ *   Cards, covers, panels and figures stay square.
+ *
+ * Unchanged:
+ *   no font-weight above 400, neither face has a bold.
+ *   no box-shadow.
+ *   Signal Red budget: one dot per band, bracket links, one filled button per page.
+ */
+
+/* ---------- Faces ---------- */
+
+@font-face {
+  font-family: 'Thorndale AMT Regular';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    url('../fonts/thorndale-amt-regular.woff2') format('woff2'),
+    url('../fonts/thorndale-amt-regular.woff') format('woff'),
+    url('../fonts/thorndale-amt-regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'SpaceMono-Regular';
+  font-style: normal;
+  font-weight: 400;
+  src:
+    url('../fonts/space-mono-regular.woff2') format('woff2'),
+    url('../fonts/space-mono-regular.ttf') format('truetype');
+  font-display: swap;
+}
+
+/* ---------- Tokens ---------- */
+
+:root {
+  --parchment: #f4f0ed;
+  --obsidian: #22190c;
+  --clay: #834a33;
+  --signal: #ff4832;
+
+  --nav-white: #ffffff;
+  --ink-inactive: #999999;
+  /* Clay washes over Parchment. Containers and hover states, never text. */
+  --clay-wash: rgba(131, 74, 51, 0.08);
+  --clay-wash-strong: rgba(131, 74, 51, 0.16);
+
+  --face-serif: 'Thorndale AMT Regular', 'Thorndale', 'Times New Roman', Georgia, serif;
+  --face-mono: 'SpaceMono-Regular', 'Space Mono', 'Courier New', monospace;
+
+  --type-title-hub: 152px;
+  --type-title-page: 88px;
+  --type-title-chapter: 64px;
+  --type-title-section: 44px;
+  --type-title-card: 26px;
+  --type-title-sub: 28px;
+  --type-body-serif: 16px;
+  --type-body-serif-read: 19px;
+  --type-statement-lg: 36px;
+  --type-mono-base: 15px;
+  --type-eyebrow: 15px;
+  --type-nav-label: 12px;
+  --type-caption: 10px;
+
+  --space-xxs: 4px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 16px;
+  --space-lg: 24px;
+  --space-xl: 40px;
+  --space-xxl: 64px;
+  --space-band: 120px;
+  --space-chapter: 200px;
+
+  --rounded-none: 0px;
+  --rounded-pill: 100px;
+  --rounded-dot: 9999px;
+
+  --border-hairline: 0.8px;
+  --container: 1440px;
+  --gutter: 24px;
+  --measure: 690px;
+
+  --reveal: 1s cubic-bezier(0.4, 0, 0.2, 1);
+  --state: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+  --count: 500ms ease;
+}
+
+@media (max-width: 1179px) {
+  :root {
+    --type-title-hub: 104px;
+    --type-title-page: 64px;
+    --type-statement-lg: 28px;
+    --space-band: 80px;
+    --space-chapter: 120px;
+  }
+}
+
+@media (max-width: 767px) {
+  :root {
+    --type-title-hub: 64px;
+    --type-title-page: 44px;
+    --type-title-chapter: 44px;
+    --type-title-section: 32px;
+    --type-title-card: 22px;
+    --type-statement-lg: 22px;
+    --type-body-serif-read: 17px;
+    --space-band: 56px;
+    --space-chapter: 80px;
+    --gutter: 16px;
+  }
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 112px;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background-color: var(--parchment);
+  color: var(--obsidian);
+  /* Mono is the base face and serif is the overlay. This inversion is what
+     makes the page read as ClearAI. */
+  font-family: var(--face-mono);
+  font-size: var(--type-mono-base);
+  font-weight: 400;
+  line-height: 1.5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+.serif {
+  font-family: var(--face-serif);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* ---------- Titles ---------- */
+
+.title-hub,
+.title-page,
+.title-chapter,
+.title-section,
+.title-sub {
+  font-family: var(--face-serif);
+  font-weight: 400;
+  margin: 0;
+}
+
+.title-hub {
+  font-size: var(--type-title-hub);
+  line-height: 0.9;
+  letter-spacing: -0.045em;
+}
+
+.title-page {
+  font-size: var(--type-title-page);
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.title-chapter {
+  font-size: var(--type-title-chapter);
+  line-height: 1;
+}
+
+.title-section {
+  font-size: var(--type-title-section);
+  line-height: 1.05;
+  letter-spacing: -0.015em;
+}
+
+.title-sub {
+  font-size: var(--type-title-sub);
+  line-height: 1.2;
+}
+
+/* ---------- Reading copy ---------- */
+
+.prose {
+  max-width: var(--measure);
+  font-family: var(--face-serif);
+  font-size: var(--type-body-serif-read);
+  line-height: 1.55;
+}
+
+.prose p {
+  margin: 0 0 var(--space-lg);
+}
+
+/* ---------- Pills ----------
+   The hub's one shape. Mono, uppercase, 12px, hairline Obsidian edge. */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  font-family: var(--face-mono);
+  font-size: var(--type-nav-label);
+  line-height: 1.5;
+  letter-spacing: 0.36px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--obsidian);
+  background-color: transparent;
+  border: var(--border-hairline) solid var(--obsidian);
+  border-radius: var(--rounded-pill);
+  padding: var(--space-xs) var(--space-md);
+}
+
+/* Category tags sit on Clay's wash with no edge, so a row of them reads as
+   metadata rather than as controls. */
+.pill-tag {
+  border-color: transparent;
+  background-color: var(--clay-wash-strong);
+  padding: var(--space-xxs) var(--space-sm);
+  font-size: var(--type-caption);
+}
+
+/* Outline call to action. Two of these can share a band; the Signal button
+   cannot. */
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 48px;
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--face-mono);
+  font-size: var(--type-nav-label);
+  letter-spacing: 0.36px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--obsidian);
+  background-color: transparent;
+  border: var(--border-hairline) solid var(--obsidian);
+  border-radius: var(--rounded-pill);
+  transition: background-color var(--state), color var(--state);
+}
+
+.btn-outline:hover,
+.btn-outline:focus-visible {
+  background-color: var(--obsidian);
+  color: var(--parchment);
+}
+
+.btn-outline .arrow {
+  transition: transform var(--state);
+}
+
+.btn-outline:hover .arrow,
+.btn-outline:focus-visible .arrow {
+  transform: translateX(var(--space-xxs));
+}
+
+/* The one filled button per page. */
+.button-signal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  min-height: 48px;
+  padding: var(--space-sm) var(--space-lg);
+  font-family: var(--face-mono);
+  font-size: var(--type-nav-label);
+  letter-spacing: 0.36px;
+  text-transform: uppercase;
+  text-decoration: none;
+  color: var(--parchment);
+  background-color: var(--signal);
+  border: 0;
+  border-radius: var(--rounded-pill);
+  cursor: pointer;
+}
+
+/* ---------- Text-level idioms ---------- */
+
+.eyebrow {
+  font-family: var(--face-mono);
+  font-size: var(--type-eyebrow);
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--obsidian);
+  margin: 0 0 var(--space-lg);
+}
+
+.link-bracket {
+  display: inline-block;
+  font-family: var(--face-mono);
+  font-size: var(--type-eyebrow);
+  line-height: 1.2;
+  text-transform: uppercase;
+  color: var(--signal);
+  text-decoration: none;
+  padding: var(--space-sm) 0;
+}
+
+.link-bracket .arrow {
+  display: inline-block;
+  transition: transform var(--state);
+}
+
+.link-bracket:hover .arrow,
+.link-bracket:focus-visible .arrow {
+  transform: translateX(var(--space-xxs));
+}
+
+.link-inline-serif {
+  color: var(--clay);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 2px;
+}
+
+.footnote-ref {
+  font-family: var(--face-mono);
+  font-size: var(--type-caption);
+  color: var(--signal);
+  text-decoration: none;
+  vertical-align: super;
+  line-height: 0;
+}
+
+.meta-line {
+  font-family: var(--face-mono);
+  font-size: var(--type-nav-label);
+  line-height: 1.5;
+  letter-spacing: 0.36px;
+  text-transform: uppercase;
+}
+
+.caption {
+  font-family: var(--face-mono);
+  font-size: var(--type-caption);
+  line-height: 1.5;
+}
+
+.dot-marker {
+  display: inline-block;
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background-color: var(--signal);
+  border-radius: var(--rounded-dot);
+}
+
+.rule-hairline {
+  border: 0;
+  border-top: var(--border-hairline) solid var(--clay);
+  margin: var(--space-lg) 0;
+}
+
+/* ---------- Layout ---------- */
+
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.band {
+  padding-block: var(--space-band);
+}
+
+/* ---------- Reveal on entry ----------
+   One second fade held in place, no travel. */
+
+.reveal {
+  opacity: 0;
+  transition: opacity var(--reveal);
+}
+
+.reveal.revealed {
+  opacity: 1;
+}
+
+.reveal-group > .reveal:nth-child(2) { transition-delay: 60ms; }
+.reveal-group > .reveal:nth-child(3) { transition-delay: 120ms; }
+.reveal-group > .reveal:nth-child(4) { transition-delay: 180ms; }
+
+html:not(.js) .reveal {
+  opacity: 1;
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .reveal.revealed {
+    opacity: 1;
+    transition: none;
+  }
+
+  .btn-outline,
+  .btn-outline .arrow,
+  .link-bracket .arrow {
+    transition: none;
+  }
+}
+
+:focus-visible {
+  outline: 1.6px solid var(--signal);
+  outline-offset: var(--space-xxs);
+}

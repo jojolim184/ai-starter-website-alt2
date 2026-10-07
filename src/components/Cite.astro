@@ -1,0 +1,25 @@
+---
+// Links the phrase a citation is about straight to the source:
+// `<Cite n={19}>ELIZA</Cite>` alongside the `<Ref n={19} />` marker that carries
+// the number. The URL comes from the source list, so the prose never repeats
+// one, and entries with no reachable source (books, papers behind neither a DOI
+// nor an arXiv id) render the phrase as plain text.
+import { references, sourceUrl } from '../data/references.ts';
+
+interface Props {
+  n: number;
+}
+
+const { n } = Astro.props;
+const url = sourceUrl(references.find((reference) => reference.n === n));
+---
+
+{
+  url ? (
+    <a href={url} class="link-inline-serif" rel="noopener">
+      <slot />
+    </a>
+  ) : (
+    <slot />
+  )
+}

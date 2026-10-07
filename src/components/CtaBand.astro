@@ -1,0 +1,84 @@
+---
+// The hub's closing invitation, on Obsidian. It holds the page's one filled
+// Signal button and the accent mark, so nothing above it should use either.
+import accent from '../../assets/images/brand/accent-dots-signal-red.svg';
+---
+
+<section class="cta-band" aria-labelledby="cta-title">
+  <div class="container cta-inner">
+    <div class="cta-lead reveal">
+      <img src={accent.src} alt="" class="cta-accent" width="60" height="40" />
+      <h2 id="cta-title" class="title-section">
+        Want to talk about how AI applies to your organisation?
+      </h2>
+    </div>
+
+    <div class="cta-side reveal">
+      <p class="serif">
+        If something here has raised a question, or touches a challenge your team is working
+        through, we would be glad to hear about it. We help Australian organisations adopt AI
+        with intent, at a pace their people can carry.
+      </p>
+      <div class="cta-actions">
+        <a href="mailto:hello@clearai.com.au" class="button-signal">
+          Talk to ClearAI <span aria-hidden="true">→</span>
+        </a>
+        <a href="https://www.clearai.com.au/" class="btn-outline btn-on-dark">
+          Our services <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-band {
+    background-color: var(--obsidian);
+    color: var(--parchment);
+    padding-block: var(--space-band);
+  }
+
+  .cta-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: var(--space-xxl);
+    align-items: end;
+  }
+
+  .cta-accent {
+    width: 60px;
+    height: auto;
+    margin-bottom: var(--space-xl);
+  }
+
+  .cta-side p {
+    margin: 0 0 var(--space-xl);
+    font-size: var(--type-body-serif-read);
+    line-height: 1.5;
+    max-width: 520px;
+  }
+
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+  }
+
+  .btn-on-dark {
+    color: var(--parchment);
+    border-color: var(--parchment);
+  }
+
+  .btn-on-dark:hover,
+  .btn-on-dark:focus-visible {
+    background-color: var(--parchment);
+    color: var(--obsidian);
+  }
+
+  @media (max-width: 899px) {
+    .cta-inner {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+</style>

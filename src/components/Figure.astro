@@ -1,0 +1,66 @@
+---
+// A single photo plate: the same hairline frame and "Fig N." caption row as
+// ImageCarousel.astro, for the places where one image is enough and a
+// carousel would be theatre. Purely static — nothing for a script to do.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Ref from './Ref.astro';
+
+interface Props {
+  src: ImageMetadata;
+  /** Plain description for screen readers. The caption below is presentational. */
+  alt: string;
+  caption: string;
+  /** Figure number as it should read, e.g. '2'. */
+  fig: string;
+  /** Source-list number, if this image has one in images_diagrams_sources.txt. */
+  refNumber?: number;
+  /** `compact` narrows the plate to roughly two-thirds of the text measure. */
+  size?: 'default' | 'compact';
+}
+
+const { src, alt, caption, fig, refNumber, size = 'default' } = Astro.props;
+---
+
+<figure class="figure" data-size={size}>
+  <div class="figure-frame">
+    <Image src={src} alt={alt} class="figure-image" widths={[460, 690, 920]} sizes="(max-width: 767px) 100vw, 690px" />
+  </div>
+  <figcaption class="figure-caption caption">
+    <span class="figure-fig">Fig {fig}.</span> {caption}
+    {refNumber && <Ref n={refNumber} />}
+  </figcaption>
+</figure>
+
+<style>
+  .figure {
+    margin: var(--space-lg) 0;
+    max-width: var(--measure);
+  }
+
+  .figure[data-size='compact'] {
+    max-width: 460px;
+  }
+
+  .figure-frame {
+    overflow: hidden;
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-none);
+  }
+
+  .figure-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .figure-caption {
+    margin-top: var(--space-sm);
+    color: var(--clay);
+  }
+
+  .figure-fig {
+    color: var(--obsidian);
+  }
+</style>

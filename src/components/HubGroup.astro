@@ -1,0 +1,164 @@
+---
+// A titled run of cards that the reader can fold away. Without script the
+// toggle is hidden and every group stays open.
+interface Props {
+  id: string;
+  title: string;
+  /** Mono line above the title. */
+  kicker: string;
+  intro?: string;
+  /** Two-up suits groups of two or four; everything else runs three across. */
+  columns: 2 | 3;
+}
+
+const { id, title, kicker, intro, columns } = Astro.props;
+---
+
+<section class="hub-group" id={id} data-group={id}>
+  <header class="group-head">
+    <div class="group-titles">
+      <p class="group-kicker meta-line">{kicker}</p>
+      <h2 class="title-section">{title}</h2>
+    </div>
+    <button
+      type="button"
+      class="pill group-toggle"
+      aria-expanded="true"
+      aria-controls={`${id}-cards`}
+      data-group-toggle
+    >
+      <span data-toggle-label>Hide</span>
+      <span class="toggle-icon" aria-hidden="true"></span>
+    </button>
+  </header>
+
+  <div class="group-body" id={`${id}-cards`}>
+    {intro && <p class="group-intro serif">{intro}</p>}
+    <div class="group-grid" data-columns={columns}>
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hub-group + .hub-group {
+    margin-top: var(--space-band);
+  }
+
+  .group-head {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--space-lg);
+    padding-bottom: var(--space-md);
+    border-bottom: var(--border-hairline) solid var(--obsidian);
+  }
+
+  .group-kicker {
+    margin: 0 0 var(--space-xs);
+    color: var(--clay);
+  }
+
+  .group-toggle {
+    flex: none;
+    cursor: pointer;
+    min-height: 36px;
+    transition: background-color var(--state), color var(--state);
+  }
+
+  .group-toggle:hover,
+  .group-toggle:focus-visible {
+    background-color: var(--obsidian);
+    color: var(--parchment);
+  }
+
+  /* A plus that loses its vertical stroke while the group is open. */
+  .toggle-icon {
+    position: relative;
+    width: 10px;
+    height: 10px;
+  }
+
+  .toggle-icon::before,
+  .toggle-icon::after {
+    content: '';
+    position: absolute;
+    background-color: currentColor;
+    transition: transform var(--state);
+  }
+
+  .toggle-icon::before {
+    left: 0;
+    right: 0;
+    top: 50%;
+    height: 1px;
+  }
+
+  .toggle-icon::after {
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    width: 1px;
+  }
+
+  .group-toggle[aria-expanded='true'] .toggle-icon::after {
+    transform: scaleY(0);
+  }
+
+  html:not(.js) .group-toggle {
+    display: none;
+  }
+
+  .group-body[hidden] {
+    display: none;
+  }
+
+  .group-intro {
+    max-width: 560px;
+    margin: var(--space-lg) 0 0;
+    font-size: var(--type-body-serif-read);
+    line-height: 1.4;
+  }
+
+  .group-grid {
+    display: grid;
+    gap: var(--space-xxl) var(--space-lg);
+    margin-top: var(--space-xl);
+  }
+
+  .group-grid[data-columns='3'] {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .group-grid[data-columns='2'] {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  /* Two-up cards are half again as wide, so their covers shorten to match the
+     three-up row's height. */
+  .group-grid[data-columns='2'] :global(.card-cover) {
+    aspect-ratio: 12 / 5;
+  }
+
+  @media (max-width: 1023px) {
+    .group-grid[data-columns='3'] {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (max-width: 639px) {
+    .group-grid[data-columns='3'],
+    .group-grid[data-columns='2'] {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xl);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .group-toggle,
+    .toggle-icon::before,
+    .toggle-icon::after {
+      transition: none;
+    }
+  }
+</style>

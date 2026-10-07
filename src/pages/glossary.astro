@@ -1,0 +1,266 @@
+---
+import Base from '../layouts/Base.astro';
+import { glossary, haystack, type Kind } from '../data/glossary.ts';
+
+const sorted = [...glossary].sort((a, b) => a.term.localeCompare(b.term, 'en-AU'));
+
+const byLetter = new Map<string, typeof sorted>();
+for (const term of sorted) {
+  const first = term.term[0].toUpperCase();
+  const letter = /[A-Z]/.test(first) ? first : '#';
+  byLetter.set(letter, [...(byLetter.get(letter) ?? []), term]);
+}
+
+const kinds: { value: 'all' | Kind; label: string }[] = [
+  { value: 'all', label: 'All' },
+  { value: 'term', label: 'Terms' },
+  { value: 'company', label: 'Companies' },
+  { value: 'person', label: 'People' },
+];
+---
+
+<Base
+  title="Glossary | Learning hub | ClearAI"
+  description="Plain-English definitions for the AI terms, companies and people named across the ClearAI learning hub."
+  current="glossary"
+>
+  <main class="container page">
+    <header class="page-head">
+      <p class="meta-line page-kicker">Reference</p>
+      <h1 class="title-page reveal">Glossary</h1>
+      <p class="serif page-intro reveal">
+        The terms, companies and people the articles name, each explained in a sentence or two.
+      </p>
+    </header>
+
+    <div class="tools">
+      <div class="kind-chips" role="group" aria-label="Show">
+        {
+          kinds.map((kind) => (
+            <button
+              type="button"
+              class="pill kind-chip"
+              data-kind={kind.value}
+              aria-pressed={kind.value === 'all' ? 'true' : 'false'}
+            >
+              {kind.label}
+            </button>
+          ))
+        }
+      </div>
+      <label class="search">
+        <span class="visually-hidden">Search the glossary</span>
+        <input type="search" placeholder="Search terms" data-glossary-query />
+      </label>
+      <p class="meta-line count" aria-live="polite">
+        <span data-glossary-count>{sorted.length}</span> entries
+      </p>
+    </div>
+
+    <nav class="letters meta-line" aria-label="Jump to letter">
+      {[...byLetter.keys()].map((letter) => <a href={`#letter-${letter}`}>{letter}</a>)}
+    </nav>
+
+    <div class="entries">
+      {
+        [...byLetter.entries()].map(([letter, terms]) => (
+          <section class="letter-group" id={`letter-${letter}`} data-letter-group>
+            <h2 class="letter">{letter}</h2>
+            <dl class="term-list">
+              {terms.map((term) => (
+                <div class="term-row" data-term-row data-kind={term.kind} data-haystack={haystack(term)}>
+                  <dt>
+                    <span class="serif term-name">{term.term}</span>
+                    {term.short && <span class="meta-line term-short">{term.short}</span>}
+                  </dt>
+                  <dd>
+                    <p class="serif">{term.definition}</p>
+                    <span class="pill pill-tag">{term.category}</span>
+                  </dd>
+                </div>
+              ))}
+            </dl>
+          </section>
+        ))
+      }
+    </div>
+  </main>
+</Base>
+
+<script>
+  import '../../assets/scripts/glossary-page.ts';
+</script>
+
+<style>
+  .page {
+    padding-top: var(--space-xxl);
+    padding-bottom: var(--space-band);
+  }
+
+  .page-head {
+    padding-bottom: var(--space-xl);
+  }
+
+  .page-kicker {
+    margin: 0 0 var(--space-md);
+    color: var(--clay);
+  }
+
+  .page-intro {
+    max-width: 560px;
+    margin: var(--space-lg) 0 0;
+    font-size: var(--type-body-serif-read);
+    line-height: 1.45;
+  }
+
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-md) var(--space-lg);
+    padding-block: var(--space-lg);
+    border-top: var(--border-hairline) solid var(--obsidian);
+  }
+
+  .kind-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xs);
+  }
+
+  .kind-chip {
+    cursor: pointer;
+    min-height: 40px;
+    transition: background-color var(--state), color var(--state);
+  }
+
+  .kind-chip:hover,
+  .kind-chip[aria-pressed='true'] {
+    background-color: var(--obsidian);
+    color: var(--parchment);
+  }
+
+  .search {
+    flex: 1 1 240px;
+    max-width: 360px;
+  }
+
+  .search input {
+    width: 100%;
+    min-height: 40px;
+    padding: var(--space-xs) var(--space-md);
+    font-family: var(--face-mono);
+    font-size: var(--type-nav-label);
+    color: var(--obsidian);
+    background-color: var(--nav-white);
+    border: var(--border-hairline) solid var(--obsidian);
+    border-radius: var(--rounded-pill);
+  }
+
+  .count {
+    margin: 0 0 0 auto;
+    color: var(--clay);
+  }
+
+  :global(html:not(.js)) .kind-chips,
+  :global(html:not(.js)) .search,
+  :global(html:not(.js)) .count {
+    display: none;
+  }
+
+  .letters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-xxs) var(--space-md);
+    padding-bottom: var(--space-lg);
+    border-bottom: var(--border-hairline) solid var(--obsidian);
+  }
+
+  .letters a {
+    text-decoration: none;
+    color: var(--clay);
+    padding: var(--space-xxs) 0;
+  }
+
+  .letters a:hover,
+  .letters a:focus-visible {
+    color: var(--signal);
+  }
+
+  .letter-group {
+    display: grid;
+    grid-template-columns: 160px minmax(0, 1fr);
+    gap: var(--space-lg);
+    padding-block: var(--space-xl);
+    border-bottom: var(--border-hairline) solid var(--clay-wash-strong);
+  }
+
+  .letter-group[hidden],
+  .term-row[hidden] {
+    display: none;
+  }
+
+  .letter {
+    margin: 0;
+    font-family: var(--face-serif);
+    font-weight: 400;
+    font-size: var(--type-title-chapter);
+    line-height: 0.8;
+    color: var(--clay);
+  }
+
+  .term-list {
+    margin: 0;
+    display: grid;
+    gap: var(--space-xl);
+  }
+
+  .term-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: var(--space-lg);
+  }
+
+  .term-row dt {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xxs);
+  }
+
+  .term-name {
+    font-size: var(--type-title-sub);
+    line-height: 1.1;
+  }
+
+  .term-short {
+    color: var(--clay);
+  }
+
+  .term-row dd {
+    margin: 0;
+  }
+
+  .term-row dd p {
+    margin: 0 0 var(--space-sm);
+    font-size: var(--type-body-serif-read);
+    line-height: 1.45;
+    max-width: 620px;
+  }
+
+  @media (max-width: 899px) {
+    .letter-group {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .term-row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--space-xs);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kind-chip {
+      transition: none;
+    }
+  }
+</style>

@@ -1,0 +1,79 @@
+---
+title: The gold rush
+category: public
+order: 7
+period: "2023"
+excerpt: GPT-4, Claude, Gemini, LLaMA and Grok all arrive, and the shape of the modern industry sets in.
+description: How OpenAI, Google, Anthropic, Meta and xAI formed the American line-up in a single year.
+---
+
+import Ref from '../../components/Ref.astro';
+import ImagePairCarousel from '../../components/ImagePairCarousel.astro';
+import samAltman from '../../../assets/images/articles/leaders/sam-altman.jpg';
+import chatgpt from '../../../assets/images/articles/leaders/chatgpt.jpg';
+import sundarPichai from '../../../assets/images/articles/leaders/sundar-pichai.jpg';
+import gemini from '../../../assets/images/articles/leaders/gemini.jpg';
+import darioAmodei from '../../../assets/images/articles/leaders/dario-amodei.jpg';
+import claude from '../../../assets/images/articles/leaders/claude.jpg';
+import markZuckerberg from '../../../assets/images/articles/leaders/mark-zuckerberg.jpg';
+import llama from '../../../assets/images/articles/leaders/llama.jpg';
+import elonMusk from '../../../assets/images/articles/leaders/elon-musk.jpg';
+import grok from '../../../assets/images/articles/leaders/grok.jpg';
+
+If 2022 lit the fuse, 2023 was the bang. Every big technology company scrambled to respond, and
+the shape of the modern industry set in.
+
+OpenAI raised the bar in March with GPT-4, a much more capable system that could take images as
+well as text and did well on everything from bar exams to coding tests <Ref n={8} />. With a
+multibillion-dollar partnership behind it from Microsoft, which built the technology into its own
+products, OpenAI was the company to beat.
+
+Google, which had invented the transformer but moved slower on consumer products, found itself on
+the back foot. It rushed out a chatbot called Bard, then later in the year put forward a stronger
+family of models called Gemini <Ref n={13} />. The company that quietly pioneered the underlying
+science was now playing catch-up in public.
+
+Anthropic launched its assistant, Claude, in March 2023, pitched as a more careful, steerable
+option with safety front and centre <Ref n={14} />. Big investment followed, including from Amazon
+and Google.
+
+Meta (Facebook's parent company) took a different path, and it mattered. In February 2023 it
+released its LLaMA models as open source, meaning anyone could download and build on them for
+free, which kicked off a wider open-weights movement <Ref n={13} />. That "open" approach, set
+against the "closed" one favoured by OpenAI and Anthropic, became one of the defining fault lines
+in AI, and it's the one where Chinese companies would later plant their flag.
+
+Finally, Elon Musk, who had co-founded OpenAI years earlier before walking away, started a new
+venture, xAI, in July, tying it closely to his social network, by then renamed X (formerly
+Twitter) <Ref n={15} />. By November, xAI had its own chatbot, Grok, sold as cheekier and less
+filtered than its rivals, with a direct line into the firehose of posts on X <Ref n={13} />. The
+main American line-up, OpenAI, Anthropic, Google, Meta and xAI, was now basically set.
+
+<ImagePairCarousel slides={[
+  {
+    leader: { src: samAltman, alt: 'Portrait of Sam Altman.', fig: '5.1', refNumber: 37 },
+    product: { src: chatgpt, alt: 'The ChatGPT product.', fig: '5.2', refNumber: 38 },
+    caption: 'CEO of OpenAI, Sam Altman; ChatGPT',
+  },
+  {
+    leader: { src: sundarPichai, alt: 'Portrait of Sundar Pichai.', fig: '5.3', refNumber: 39 },
+    product: { src: gemini, alt: 'The Gemini product.', fig: '5.4', refNumber: 40 },
+    caption: 'CEO of Google, Sundar Pichai; Gemini',
+  },
+  {
+    leader: { src: darioAmodei, alt: 'Portrait of Dario Amodei.', fig: '5.5', refNumber: 41 },
+    product: { src: claude, alt: 'The Claude product.', fig: '5.6', refNumber: 42 },
+    caption: 'CEO of Anthropic, Dario Amodei; Claude',
+  },
+  {
+    leader: { src: markZuckerberg, alt: 'Portrait of Mark Zuckerberg.', fig: '5.7', refNumber: 43 },
+    product: { src: llama, alt: 'The LLaMA product.', fig: '5.8', refNumber: 44 },
+    caption: 'CEO of Meta, Mark Zuckerberg; LLaMA',
+  },
+  {
+    leader: { src: elonMusk, alt: 'Portrait of Elon Musk.', fig: '5.9', refNumber: 45 },
+    product: { src: grok, alt: 'The Grok product.', fig: '5.10', refNumber: 46 },
+    caption: 'CEO of xAI, Elon Musk; Grok',
+  },
+]} />
+

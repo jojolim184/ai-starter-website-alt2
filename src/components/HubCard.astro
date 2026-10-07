@@ -1,0 +1,157 @@
+---
+// One entry in the hub: typographic cover, then title, meta and category tag.
+// The cover is set type rather than a photo. The brand asks for honest,
+// analogue imagery, and a stock picture per article would be neither.
+export type Tone = 'clay' | 'obsidian' | 'wash' | 'outline';
+
+interface Props {
+  href: string;
+  title: string;
+  excerpt: string;
+  /** Set large on the cover. */
+  mark: string;
+  /** Small label in the cover's top corner. */
+  label: string;
+  tone: Tone;
+  meta: string;
+  tag: string;
+  headingLevel?: 'h3' | 'h4';
+}
+
+const { href, title, excerpt, mark, label, tone, meta, tag, headingLevel: Heading = 'h3' } =
+  Astro.props;
+---
+
+<article class="hub-card reveal">
+  <a href={href} class="card-cover" data-tone={tone} tabindex="-1" aria-hidden="true">
+    <span class="cover-label">{label}</span>
+    <span class="cover-mark">{mark}</span>
+  </a>
+
+  <div class="card-body">
+    <Heading class="card-title">
+      <a href={href}>{title}</a>
+    </Heading>
+    <p class="card-excerpt serif">{excerpt}</p>
+    <div class="card-foot">
+      <span class="meta-line">{meta}</span>
+      <span class="pill pill-tag">{tag}</span>
+    </div>
+  </div>
+</article>
+
+<style>
+  .hub-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg);
+  }
+
+  .card-cover {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    aspect-ratio: 16 / 10;
+    padding: var(--space-lg);
+    text-decoration: none;
+    overflow: hidden;
+    transition: background-color var(--state);
+  }
+
+  .card-cover[data-tone='clay'] {
+    background-color: var(--clay);
+    color: var(--parchment);
+  }
+
+  .card-cover[data-tone='obsidian'] {
+    background-color: var(--obsidian);
+    color: var(--parchment);
+  }
+
+  .card-cover[data-tone='wash'] {
+    background-color: var(--clay-wash-strong);
+    color: var(--obsidian);
+  }
+
+  .card-cover[data-tone='outline'] {
+    border: var(--border-hairline) solid var(--obsidian);
+    color: var(--obsidian);
+  }
+
+  .cover-label {
+    font-size: var(--type-nav-label);
+    letter-spacing: 0.36px;
+    text-transform: uppercase;
+  }
+
+  .cover-mark {
+    font-family: var(--face-serif);
+    font-size: clamp(64px, 8vw, 128px);
+    line-height: 0.8;
+    letter-spacing: -0.05em;
+    transition: transform var(--reveal);
+    transform-origin: left bottom;
+  }
+
+  .hub-card:hover .cover-mark,
+  .hub-card:focus-within .cover-mark {
+    transform: translateY(-6px);
+  }
+
+  .card-body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    flex: 1;
+  }
+
+  .card-title {
+    margin: 0;
+    font-family: var(--face-serif);
+    font-weight: 400;
+    font-size: var(--type-title-card);
+    line-height: 1.15;
+  }
+
+  .card-title a {
+    text-decoration: none;
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0 0.8px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size var(--state);
+  }
+
+  .hub-card:hover .card-title a,
+  .card-title a:focus-visible {
+    background-size: 100% 0.8px;
+  }
+
+  .card-excerpt {
+    margin: 0;
+    font-size: var(--type-body-serif);
+    line-height: 1.4;
+  }
+
+  .card-foot {
+    margin-top: auto;
+    padding-top: var(--space-xs);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-sm);
+    flex-wrap: wrap;
+  }
+
+  .card-foot .meta-line {
+    color: var(--clay);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .cover-mark,
+    .card-title a {
+      transition: none;
+    }
+  }
+</style>

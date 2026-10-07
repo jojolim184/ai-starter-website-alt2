@@ -1,0 +1,64 @@
+---
+title: The DeepSeek shock, the money, and the flood
+category: public
+order: 9
+period: "2025"
+excerpt: A cheap, open Chinese model wipes hundreds of billions off Nvidia, and the infrastructure spending only grows.
+description: DeepSeek R1, the market reaction, Stargate, agents and the deepening US-China rivalry.
+---
+
+import Ref from '../../components/Ref.astro';
+import LineChart from '../../components/LineChart.astro';
+import { aiStockSelloff, selloffCheckpoints } from '../../data/stockSelloff.ts';
+
+If one moment defined 2025, it landed in the last week of January. DeepSeek, the Chinese startup,
+released a reasoning model called R1, and gave it away free, as open source <Ref n={19} />. What
+stunned the industry wasn't only that it held its own against the best American systems. It was
+the price: DeepSeek said it had built the model for a tiny fraction of what its US rivals were
+spending, and did it despite American export controls meant to keep China away from the most
+advanced chips <Ref n={19} />.
+
+The reaction was sharp. American tech stocks tumbled, and the chipmaker Nvidia, whose processors
+run most AI systems, had hundreds of billions of dollars wiped off its value, with one widely
+cited figure putting the drop near $593 billion <Ref n={20} />. The US market as a whole shed
+something like a trillion dollars, and even President Trump called it a wake-up call <Ref n={19} />.
+DeepSeek briefly became the most downloaded free app in the United States <Ref n={18} />. The whole
+episode punctured a comfortable assumption: that cutting-edge AI would stay the preserve of a few
+rich American companies. World-class AI could be built cheaply and handed out openly, and China had
+just shown it was a real peer in the race, not a distant follower.
+
+<LineChart
+  fig="6"
+  title="Western AI stocks dive after the DeepSeek shock"
+  subtitle="Returns of selected stocks, 24-28 January 2025"
+  checkpoints={selloffCheckpoints}
+  data={aiStockSelloff}
+  sourceLine="Source: Wall Street Journal, as of 28 January 2025. Figures approximate, for illustration."
+/>
+
+The American response ran on two fronts. On the first, the labs kept shipping better systems at a
+punishing rate. In February, Anthropic released a Claude model that could switch between quick
+answers and careful reasoning, paired with a well-liked developer tool called Claude Code, and
+followed with its Claude 4 generation in May <Ref n={16} />. OpenAI, after plenty of build-up,
+released GPT-5 in August, a system built to decide for itself when a question needed a fast reply
+and when it needed slower, careful thought <Ref n={21} />. Google, Anthropic, xAI and OpenAI all
+pushed out major upgrades through the year, often leapfrogging one another within days.
+
+The second front was money, and staggering amounts of it. In January, alongside the incoming Trump
+administration, OpenAI, Japan's SoftBank and Oracle announced Stargate, a plan to put up to $500
+billion into American AI infrastructure: vast data centres packed with chips, drawing enough
+electricity to run cities <Ref n={22} />. Nvidia agreed to invest as much as $100 billion in
+OpenAI, and other giants committed hundreds of billions more <Ref n={22} />. The numbers were big
+enough to unsettle even the optimists, and talk of an "AI bubble" got louder: a worry that the
+industry was spending far faster than it was earning, inside a web of deals where the same
+companies invested in each other and bought each other's products <Ref n={23} />.
+
+Two other themes settled in during 2025. The first was agents: AI that doesn't just answer
+questions but does things for you, like browsing the web, filling in forms, or running a
+multi-step task from start to finish <Ref n={24} />. The second was the deepening US-China
+rivalry. China leaned into open source on purpose. Beyond DeepSeek and Alibaba's Qwen, the likes
+of Moonshot AI (with its Kimi models), ByteDance, Zhipu and Baidu put out capable systems, many of
+them free to download <Ref n={25} />. Where American leaders such as OpenAI mostly kept their best
+work behind closed doors, Chinese firms bet that giving theirs away would buy them global
+influence and developer loyalty, and help them work around American chip restrictions <Ref n={26} />.
+

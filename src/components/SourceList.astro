@@ -1,0 +1,60 @@
+---
+import type { Reference } from '../data/references.ts';
+
+interface Props {
+  items: Reference[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="ref-list">
+  {
+    items.map((reference) => (
+      <li id={`ref-${reference.n}`} class="ref-item">
+        <span class="ref-number">[{reference.n}]</span>
+        <span class="ref-text">
+          <span set:html={reference.text} />
+          {reference.url && (
+            <>
+              {' '}
+              <a href={reference.url} class="ref-link" rel="noopener">
+                {reference.url}
+              </a>
+            </>
+          )}
+        </span>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .ref-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .ref-item {
+    display: grid;
+    grid-template-columns: 3.5rem 1fr;
+    gap: var(--space-xs);
+    font-size: var(--type-nav-label);
+    line-height: 1.5;
+    padding-block: var(--space-xs);
+  }
+
+  .ref-item:target .ref-number {
+    color: var(--signal);
+  }
+
+  .ref-number {
+    color: var(--clay);
+  }
+
+  .ref-link {
+    color: var(--clay);
+    overflow-wrap: anywhere;
+  }
+</style>

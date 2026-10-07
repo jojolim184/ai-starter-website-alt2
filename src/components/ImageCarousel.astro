@@ -1,0 +1,230 @@
+---
+// A photo-plate-bordered carousel: every slide renders into the DOM at build
+// time, and carousel.ts only ever toggles which one carries `data-current`.
+// CSS does the crossfade on `var(--state)`, the same idiom RailInstrument.astro
+// uses for its per-chapter readings — no DOM templating, no image swapping.
+//
+// Reusable: pass any list of slides. Multiple carousels on one page work
+// because carousel.ts queries every `[data-carousel]`, not a single instance.
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import Ref from './Ref.astro';
+
+interface Slide {
+  src: ImageMetadata;
+  /** Plain description for screen readers. The caption below is presentational. */
+  alt: string;
+  caption: string;
+  /** Sub-figure number within this carousel's figure, e.g. '1.1'. */
+  fig: string;
+  /** Source-list number, if this image has one in images_diagrams_sources.txt. */
+  refNumber?: number;
+}
+
+interface Props {
+  slides: Slide[];
+  /** `compact` narrows the plate to roughly two-thirds of the text measure. */
+  size?: 'default' | 'compact';
+}
+
+const { slides, size = 'default' } = Astro.props;
+---
+
+<figure class="carousel" data-carousel data-size={size}>
+  <div class="carousel-frame">
+    {
+      slides.map((slide, index) => (
+        <div class="carousel-slide" data-carousel-slide data-current={index === 0 ? '' : undefined}>
+          <Image src={slide.src} alt={slide.alt} class="carousel-image" />
+        </div>
+      ))
+    }
+
+    <button type="button" class="carousel-arrow carousel-arrow-prev" data-carousel-prev aria-label="Previous image">
+      <span aria-hidden="true">‹</span>
+    </button>
+    <button type="button" class="carousel-arrow carousel-arrow-next" data-carousel-next aria-label="Next image">
+      <span aria-hidden="true">›</span>
+    </button>
+  </div>
+
+  <div class="carousel-foot">
+    <figcaption class="carousel-captions">
+      {
+        slides.map((slide, index) => (
+          <span class="carousel-caption caption" data-carousel-caption data-current={index === 0 ? '' : undefined}>
+            <span class="carousel-fig">Fig {slide.fig}.</span> {slide.caption}
+            {slide.refNumber && <Ref n={slide.refNumber} />}
+          </span>
+        ))
+      }
+    </figcaption>
+
+    <div class="carousel-dots" role="tablist" aria-label="Choose image">
+      {
+        slides.map((slide, index) => (
+          <button
+            type="button"
+            class="carousel-dot"
+            data-carousel-dot
+            role="tab"
+            aria-label={`Show image ${index + 1} of ${slides.length}`}
+            aria-current={index === 0 ? 'true' : 'false'}
+          />
+        ))
+      }
+    </div>
+  </div>
+</figure>
+
+<style>
+  .carousel {
+    margin: var(--space-lg) 0;
+    max-width: var(--measure);
+  }
+
+  .carousel[data-size='compact'] {
+    max-width: 460px;
+  }
+
+  .carousel-frame {
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-none);
+  }
+
+  /* All slides stack in place; only `data-current` is visible. Position,
+     don't unmount, so the crossfade has two layers to cross between. */
+  .carousel-slide {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--state), visibility var(--state);
+  }
+
+  .carousel-slide[data-current] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .carousel-image {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-dot);
+    color: var(--obsidian);
+    font-family: var(--face-mono);
+    font-size: 18px;
+    line-height: 1;
+    cursor: pointer;
+
+    transition: color var(--state);
+  }
+
+  .carousel-arrow:hover,
+  .carousel-arrow:focus-visible {
+    color: var(--signal);
+  }
+
+  .carousel-arrow-prev {
+    left: var(--space-sm);
+  }
+
+  .carousel-arrow-next {
+    right: var(--space-sm);
+  }
+
+  .carousel-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-md);
+    margin-top: var(--space-sm);
+  }
+
+  /* Captions stack the same way the slides do: all present, one visible. */
+  .carousel-captions {
+    position: relative;
+    flex: 1;
+    min-height: calc(var(--type-caption) * 1.5);
+  }
+
+  .carousel-caption {
+    position: absolute;
+    inset: 0;
+    color: var(--clay);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--state), visibility var(--state);
+  }
+
+  .carousel-fig {
+    color: var(--obsidian);
+  }
+
+  .carousel-caption[data-current] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: var(--space-xs);
+    flex: none;
+  }
+
+  .carousel-dot {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    background-color: var(--parchment);
+    border: var(--border-hairline) solid var(--clay);
+    border-radius: var(--rounded-dot);
+    cursor: pointer;
+    transition: background-color var(--state);
+  }
+
+  .carousel-dot[aria-current='true'] {
+    background-color: var(--signal);
+    border-color: var(--signal);
+  }
+
+  /* The whole feature is script-driven: without JS there is no way to change
+     `data-current`, so show only the first slide and drop the now-useless
+     controls, same fallback the glossary toggle and figures panel use. */
+  :global(html:not(.js)) .carousel-arrow,
+  :global(html:not(.js)) .carousel-dots {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .carousel-slide,
+    .carousel-caption,
+    .carousel-arrow,
+    .carousel-dot {
+      transition: none;
+    }
+  }
+</style>
