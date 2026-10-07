@@ -40,20 +40,16 @@ const filters = [
 ---
 
 <Base
-  title="Learning hub | The history of AI | ClearAI"
+  title="The History of AI | ClearAI"
   description="A short, sourced history of artificial intelligence from 1950 to 2026, in eleven articles. The learning hub for readers of analogue by ClearAI."
   current="hub"
 >
   <main>
     <section class="hero container">
-      <p class="hero-eyebrow pill reveal">
-        <span class="dot-marker" aria-hidden="true"></span>
-        The history of AI, 1950 to 2026
-      </p>
-
       <div class="hero-grid">
         <div class="hero-title-col">
-          <h1 class="title-hub reveal">Learning hub</h1>
+          <h1 class="title-hub hero-title reveal">History of AI</h1>
+          <p class="title-sub hero-sub reveal">1950 to 2026</p>
           <div class="hero-actions reveal">
             <a href={articleHref(articles[0])} class="btn-outline">
               Start at the beginning <span class="arrow" aria-hidden="true">→</span>
@@ -172,20 +168,25 @@ const filters = [
     padding-bottom: var(--space-band);
   }
 
-  .hero-eyebrow {
-    display: flex;
-    width: fit-content;
-    margin: 0 auto;
-    padding: var(--space-sm) var(--space-lg);
-    gap: var(--space-sm);
-  }
-
   .hero-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
     gap: var(--space-xxl);
     align-items: end;
-    margin-top: var(--space-xxl);
+  }
+
+  .hero-title-col {
+    container-type: inline-size;
+  }
+
+  /* One line at every width: the title is about 4.8 ems wide, so 20cqi keeps it inside its column. */
+  .hero-title {
+    font-size: min(var(--type-title-hub), 20cqi);
+    white-space: nowrap;
+  }
+
+  .hero-sub {
+    margin: var(--space-md) 0 0;
   }
 
   .hero-actions {
@@ -280,16 +281,6 @@ const filters = [
     .hero-grid {
       grid-template-columns: minmax(0, 1fr);
       gap: var(--space-xl);
-    }
-  }
-
-  @media (max-width: 767px) {
-    .hero-eyebrow {
-      margin: 0;
-    }
-
-    .hero-grid {
-      margin-top: var(--space-xl);
     }
   }
 
